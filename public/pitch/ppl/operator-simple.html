@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PPL Command — simplified</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+    background: #030303;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :root {
+    --ppl-accent: #D6FF3C;
+    --ppl-accent-dark: #a8cc2c;
+    --ppl-dim: rgba(255,255,255,0.5);
+    --ppl-muted: rgba(255,255,255,0.28);
+    --ppl-card: #0d0d0d;
+    --ppl-raised: #141414;
+    --ppl-border: rgba(255,255,255,0.06);
+    --ppl-border-bright: rgba(255,255,255,0.12);
+    --ppl-live: #FF3844;
+    --ppl-warn: #FFB84B;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px 80px;
+    gap: 28px;
+  }
+
+  /* ── Monitor frame ───────────────────────────────────────── */
+  .monitor {
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 16 / 10;
+    background: #000;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.05),
+      0 0 0 16px #111,
+      0 0 0 17px rgba(255,255,255,0.08),
+      0 80px 160px rgba(0,0,0,0.85),
+      0 30px 60px rgba(0,0,0,0.5);
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: #050505;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 32px;
+    gap: 22px;
+  }
+
+  .stand-base {
+    width: 300px;
+    height: 14px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    border-radius: 2px 2px 0 0;
+    margin-top: -1px;
+  }
+  .stand-foot {
+    width: 440px;
+    height: 8px;
+    background: #0d0d0d;
+    border-radius: 100%;
+    margin-top: -2px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  }
+
+  /* ── Top bar ─────────────────────────────────────────────── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--ppl-border);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-right: 18px;
+    border-right: 1px solid var(--ppl-border);
+  }
+  .brand-logo {
+    height: 28px;
+    width: auto;
+    display: block;
+  }
+  .brand-sub {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2.4px;
+    color: var(--ppl-dim);
+    text-transform: uppercase;
+  }
+
+  .event-context {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+  }
+  .live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ppl-live);
+  }
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    background: currentColor;
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .pipe { color: var(--ppl-muted); font-weight: 600; }
+
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px 7px 8px;
+    border: 1px solid var(--ppl-border-bright);
+  }
+  .user-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ppl-accent), var(--ppl-accent-dark));
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+  }
+  .user-role {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+
+  /* ── Hero KPI section ─────────────────────────────────────── */
+  .hero-kpi {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap: 18px;
+  }
+  .hero-card {
+    padding: 22px 24px;
+    border: 1px solid var(--ppl-border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card.primary {
+    background:
+      radial-gradient(circle at 85% 20%, rgba(214,255,60,0.18) 0%, transparent 60%),
+      linear-gradient(135deg, rgba(214,255,60,0.06) 0%, #080808 100%);
+    border-color: rgba(214,255,60,0.3);
+  }
+  .hero-card-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--ppl-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .hero-card-label.accent { color: var(--ppl-accent); }
+  .hero-card-value {
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: -1.8px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-card-value small {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--ppl-dim);
+  }
+  .hero-card-delta {
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 8px;
+    letter-spacing: 0.2px;
+  }
+  .hero-card-delta.up { color: var(--ppl-accent); }
+  .hero-card-delta.neutral { color: var(--ppl-dim); }
+
+  /* ── Main grid ────────────────────────────────────────────── */
+  .main-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 18px;
+    min-height: 0;
+  }
+
+  .left-col, .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 0;
+  }
+
+  /* ── Section header ──────────────────────────────────────── */
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2.2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--ppl-accent);
+  }
+  .section-meta {
+    font-size: 10px;
+    color: var(--ppl-dim);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  /* ── Live matches ─────────────────────────────────────────── */
+  .matches-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .matches-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .match-card {
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .match-card.featured {
+    background:
+      radial-gradient(circle at 100% 0%, rgba(214,255,60,0.10) 0%, transparent 55%),
+      var(--ppl-card);
+    border-color: rgba(214,255,60,0.25);
+  }
+
+  .match-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .match-round {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--ppl-dim);
+    text-transform: uppercase;
+  }
+  .match-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--ppl-live);
+    color: #fff;
+    padding: 3px 8px;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+  }
+
+  .match-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .team-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .team-badge {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    font-style: italic;
+  }
+  .tb-mia { background: linear-gradient(135deg, #FF6B35, #E91E63); color: #fff; }
+  .tb-aus { background: linear-gradient(135deg, #FFB84B, #FF6B35); color: #000; }
+  .tb-lax { background: linear-gradient(135deg, #5EA8FF, #4A5EFF); color: #fff; }
+  .tb-mex { background: linear-gradient(135deg, #22C55E, #14B8A6); color: #fff; }
+
+  .team-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .team-city {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ppl-dim);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .team-name {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: -0.2px;
+    margin-top: 1px;
+  }
+  .team-name.losing { color: var(--ppl-dim); }
+
+  .team-scores {
+    display: flex;
+    gap: 10px;
+    font-variant-numeric: tabular-nums;
+    align-items: center;
+  }
+  .team-scores .s {
+    font-size: 22px;
+    font-weight: 900;
+    min-width: 16px;
+    text-align: center;
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+  .team-scores .s.lost { color: var(--ppl-dim); }
+  .team-scores .s.current { color: var(--ppl-accent); }
+
+  .match-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--ppl-border);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ppl-dim);
+    letter-spacing: 0.8px;
+  }
+  .match-foot .watching {
+    color: var(--ppl-accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* ── Player impact section ────────────────────────────────── */
+  .impact-section {
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    padding: 20px;
+  }
+  .impact-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+  }
+  .impact-title {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .impact-title::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--ppl-accent);
+  }
+  .impact-sub {
+    font-size: 9px;
+    color: var(--ppl-dim);
+    font-weight: 700;
+    letter-spacing: 1.2px;
+  }
+
+  .impact-number {
+    font-size: 40px;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 4px;
+  }
+  .impact-number-label {
+    font-size: 10px;
+    color: var(--ppl-dim);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .impact-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 56px;
+    margin-bottom: 10px;
+  }
+  .bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--ppl-accent) 0%, rgba(214,255,60,0.25) 100%);
+    min-height: 6px;
+    position: relative;
+  }
+
+  .impact-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--ppl-dim);
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--ppl-border);
+  }
+  .impact-scale strong {
+    color: #fff;
+    font-weight: 900;
+  }
+
+  /* ── Decisions ────────────────────────────────────────────── */
+  .decisions {
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .decisions-head {
+    padding: 18px 20px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--ppl-border);
+  }
+  .decisions-title {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .decisions-title::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--ppl-warn);
+  }
+  .decisions-count {
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--ppl-warn);
+    padding: 3px 8px;
+    background: rgba(255,184,75,0.14);
+    letter-spacing: 1px;
+  }
+
+  .decision {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 12px;
+    padding: 14px 20px;
+    align-items: center;
+    border-bottom: 1px solid var(--ppl-border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision:hover { background: rgba(255,255,255,0.02); }
+
+  .decision-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+    background: var(--ppl-raised);
+    border: 1px solid var(--ppl-border-bright);
+  }
+  .decision-icon.urgent {
+    background: rgba(255,56,68,0.12);
+    border-color: rgba(255,56,68,0.5);
+    color: var(--ppl-live);
+  }
+  .decision-icon.money {
+    background: rgba(214,255,60,0.1);
+    border-color: rgba(214,255,60,0.45);
+    color: var(--ppl-accent);
+  }
+
+  .decision-body { min-width: 0; }
+  .decision-title {
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+  .decision-sub {
+    font-size: 10px;
+    color: var(--ppl-dim);
+    font-weight: 600;
+    margin-top: 3px;
+  }
+  .decision-time {
+    font-size: 9px;
+    font-weight: 900;
+    color: var(--ppl-dim);
+    letter-spacing: 1px;
+  }
+
+  .decision-actions {
+    padding: 14px 20px;
+    background: rgba(255,255,255,0.02);
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid var(--ppl-border);
+  }
+  .action-btn {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid var(--ppl-border-bright);
+    color: #fff;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .action-btn.primary {
+    background: var(--ppl-accent);
+    border-color: var(--ppl-accent);
+    color: #000;
+  }
+
+  /* ── Caption ──────────────────────────────────────────────── */
+  .caption {
+    max-width: 720px;
+    text-align: center;
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    line-height: 1.55;
+    padding-top: 4px;
+  }
+  .caption strong { color: var(--ppl-accent); font-weight: 800; }
+  .caption .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    color: var(--ppl-accent);
+    background: rgba(214,255,60,0.1);
+    padding: 6px 12px;
+    border: 1px solid rgba(214,255,60,0.3);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="monitor">
+  <div class="screen">
+
+    <!-- TOP BAR ──────────────────────────────────────────────── -->
+    <header class="topbar">
+      <div class="brand">
+        <img src="./ppl-logo.webp" alt="Pro Padel League" class="brand-logo"/>
+        <div class="brand-sub">COMMAND · OPERATIONS</div>
+      </div>
+
+      <div class="event-context">
+        <span class="live-indicator"><span class="live-dot"></span>LIVE</span>
+        <span class="pipe">|</span>
+        <span>PPL II · NEW YORK · DAY 2</span>
+        <span class="pipe">|</span>
+        <span>7:42 PM EDT</span>
+      </div>
+
+      <div class="user-pill">
+        <div class="user-avatar">M</div>
+        <span class="user-role">OPS LEAD</span>
+      </div>
+    </header>
+
+    <!-- HERO KPIs ────────────────────────────────────────────── -->
+    <section class="hero-kpi">
+      <div class="hero-card primary">
+        <div class="hero-card-label accent">TONIGHT'S PLAYER PAYOUT</div>
+        <div class="hero-card-value">$847<small>K</small></div>
+        <div class="hero-card-delta up">↑ $312K vs PPL I average</div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card-label">FANS WATCHING</div>
+        <div class="hero-card-value">324<small>K</small></div>
+        <div class="hero-card-delta up">↑ 42% vs last night</div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card-label">MATCHES · COURTS</div>
+        <div class="hero-card-value">6/8 <small style="letter-spacing:0">·</small> 2<small>/4</small></div>
+        <div class="hero-card-delta neutral">On schedule</div>
+      </div>
+    </section>
+
+    <!-- MAIN GRID ────────────────────────────────────────────── -->
+    <div class="main-grid">
+
+      <!-- LEFT: Live matches + player impact -->
+      <div class="left-col">
+
+        <div class="matches-section">
+          <div class="section-head">
+            <div class="section-title">LIVE RIGHT NOW</div>
+            <div class="section-meta">2 of 4 courts active</div>
+          </div>
+
+          <div class="matches-grid">
+            <!-- Featured match -->
+            <div class="match-card featured">
+              <div class="match-head">
+                <div class="match-round">SEMIFINAL · ARENA 1</div>
+                <div class="match-live-pill"><span class="live-dot"></span>LIVE</div>
+              </div>
+
+              <div class="match-teams">
+                <div class="team-row">
+                  <div class="team-badge tb-mia">MIA</div>
+                  <div class="team-info">
+                    <div class="team-city">MIAMI</div>
+                    <div class="team-name">Flow Rida</div>
+                  </div>
+                  <div class="team-scores">
+                    <span class="s">6</span>
+                    <span class="s lost">4</span>
+                    <span class="s current">30</span>
+                  </div>
+                </div>
+                <div class="team-row">
+                  <div class="team-badge tb-aus">AUS</div>
+                  <div class="team-info">
+                    <div class="team-city">AUSTIN</div>
+                    <div class="team-name losing">Matrix</div>
+                  </div>
+                  <div class="team-scores">
+                    <span class="s lost">4</span>
+                    <span class="s">6</span>
+                    <span class="s current">30</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="match-foot">
+                <span>SET 3 · 1h 47m</span>
+                <span class="watching">● 127K watching</span>
+              </div>
+            </div>
+
+            <!-- Second live match -->
+            <div class="match-card">
+              <div class="match-head">
+                <div class="match-round">SEMIFINAL · ARENA 2</div>
+                <div class="match-live-pill"><span class="live-dot"></span>LIVE</div>
+              </div>
+
+              <div class="match-teams">
+                <div class="team-row">
+                  <div class="team-badge tb-lax">LAX</div>
+                  <div class="team-info">
+                    <div class="team-city">LOS ANGELES</div>
+                    <div class="team-name">Los Angeles</div>
+                  </div>
+                  <div class="team-scores">
+                    <span class="s">7</span>
+                    <span class="s current">2</span>
+                    <span class="s" style="color:var(--ppl-muted)">—</span>
+                  </div>
+                </div>
+                <div class="team-row">
+                  <div class="team-badge tb-mex">MEX</div>
+                  <div class="team-info">
+                    <div class="team-city">PLAYA DEL CARMEN</div>
+                    <div class="team-name losing">Mexico Waves</div>
+                  </div>
+                  <div class="team-scores">
+                    <span class="s lost">5</span>
+                    <span class="s current">1</span>
+                    <span class="s" style="color:var(--ppl-muted)">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="match-foot">
+                <span>SET 2 · 58m</span>
+                <span class="watching">● 82K watching</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player impact -->
+        <div class="impact-section">
+          <div class="impact-head">
+            <div class="impact-title">PLAYER EARNINGS · TONIGHT</div>
+            <div class="impact-sub">40 ACTIVE · ALL CATEGORIES</div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 10px;">
+            <div>
+              <div class="impact-number">$21.2<small style="font-size:24px; color:var(--ppl-dim); font-weight:800;">K</small></div>
+              <div class="impact-number-label">AVERAGE PER PLAYER</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:11px; color: var(--ppl-accent); font-weight:900; letter-spacing:1px;">↑ 2.4× PPL I</div>
+              <div style="font-size:9px; color: var(--ppl-dim); font-weight:700; margin-top:4px; letter-spacing:0.8px;">YOY COMPARISON</div>
+            </div>
+          </div>
+
+          <div class="impact-chart">
+            <div class="bar" style="height: 28%;"></div>
+            <div class="bar" style="height: 38%;"></div>
+            <div class="bar" style="height: 34%;"></div>
+            <div class="bar" style="height: 52%;"></div>
+            <div class="bar" style="height: 46%;"></div>
+            <div class="bar" style="height: 64%;"></div>
+            <div class="bar" style="height: 58%;"></div>
+            <div class="bar" style="height: 72%;"></div>
+            <div class="bar" style="height: 66%;"></div>
+            <div class="bar" style="height: 84%;"></div>
+            <div class="bar" style="height: 78%;"></div>
+            <div class="bar" style="height: 92%;"></div>
+            <div class="bar" style="height: 100%;"></div>
+          </div>
+
+          <div class="impact-scale">
+            <span><strong>$8K</strong> floor</span>
+            <span>Median <strong>$19K</strong></span>
+            <span><strong>$42K</strong> top earner</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Decisions -->
+      <div class="right-col">
+        <div class="decisions">
+          <div class="decisions-head">
+            <div class="decisions-title">NEEDS YOUR ATTENTION</div>
+            <div class="decisions-count">2 PENDING</div>
+          </div>
+
+          <div class="decision">
+            <div class="decision-icon urgent">!</div>
+            <div class="decision-body">
+              <div class="decision-title">Arena 2 medical timeout</div>
+              <div class="decision-sub">Player welfare · Extend 5 min?</div>
+            </div>
+            <div class="decision-time">2M AGO</div>
+          </div>
+
+          <div class="decision">
+            <div class="decision-icon money">$</div>
+            <div class="decision-body">
+              <div class="decision-title">Adidas bonus · Chingotto won Set 1</div>
+              <div class="decision-sub">Auto-payout $1,200 ready</div>
+            </div>
+            <div class="decision-time">4M AGO</div>
+          </div>
+
+          <div class="decision-actions">
+            <button class="action-btn">REVIEW ALL</button>
+            <button class="action-btn primary">APPROVE TOP</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="stand-base"></div>
+<div class="stand-foot"></div>
+
+<div class="caption">
+  <div class="tag">PPL × PADELLABS · COMMAND concept</div>
+  <p>Three things that matter on a live tournament night: <strong>what's happening now</strong>, <strong>what players are earning</strong>, and <strong>what needs your attention</strong>. Everything else is a click away. The $847K tonight isn't a dashboard decoration — it's the one number the league is measured against.</p>
+</div>
+
+</body>
+</html>

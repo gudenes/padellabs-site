@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PPL Player Hub — padellabs concept</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    background: #050505;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 60px 20px 100px;
+    gap: 60px;
+    flex-wrap: wrap;
+  }
+
+  :root {
+    --ppl-accent: #D6FF3C;          /* padel-ball electric yellow-green */
+    --ppl-accent-dark: #a8cc2c;
+    --ppl-dim: rgba(255,255,255,0.52);
+    --ppl-muted: rgba(255,255,255,0.3);
+    --ppl-card: #0f0f0f;
+    --ppl-raised: #161616;
+    --ppl-border: rgba(255,255,255,0.07);
+    --ppl-border-bright: rgba(255,255,255,0.14);
+    --ppl-live: #FF3844;
+  }
+
+  /* ── Phone frame ──────────────────────────────────────────── */
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+  .phone-frame {
+    width: 390px;
+    height: 844px;
+    background: #000;
+    border-radius: 56px;
+    padding: 13px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.08),
+      0 0 0 13px #151515,
+      0 60px 140px rgba(0,0,0,0.8),
+      0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: #050505;
+    border-radius: 42px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .notch {
+    position: absolute;
+    top: 13px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 32px;
+    background: #000;
+    border-radius: 0 0 18px 18px;
+    z-index: 200;
+  }
+
+  .scroll {
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  /* ── Status bar ───────────────────────────────────────────── */
+  .status-bar {
+    height: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 28px 6px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+    position: relative;
+    z-index: 100;
+  }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+  .status-icons span { opacity: 0.95; }
+
+  /* ── Header ───────────────────────────────────────────────── */
+  .app-header {
+    padding: 14px 20px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 5;
+  }
+  .ppl-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ppl-logo {
+    height: 22px;
+    width: auto;
+    display: block;
+  }
+  .ppl-mark-sub {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--ppl-dim);
+    text-transform: uppercase;
+    padding-left: 10px;
+    border-left: 1px solid var(--ppl-border);
+  }
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ppl-live);
+    color: #fff;
+    padding: 5px 10px;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.6px;
+  }
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  /* ── HERO: player is the product ──────────────────────────── */
+  .hero {
+    position: relative;
+    height: 440px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  /* atmospheric gradient background */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 80% 30%, rgba(214,255,60,0.20) 0%, transparent 55%),
+      radial-gradient(ellipse 90% 60% at 30% 70%, rgba(0,100,180,0.15) 0%, transparent 60%),
+      linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+  }
+
+  /* synthetic "action shot" — abstract shape suggesting a player mid-swing */
+  .hero-figure {
+    position: absolute;
+    right: -40px;
+    top: 20px;
+    width: 320px;
+    height: 420px;
+    background:
+      linear-gradient(145deg,
+        rgba(255,255,255,0.06) 0%,
+        rgba(214,255,60,0.10) 40%,
+        rgba(0,0,0,0.8) 70%,
+        transparent 100%);
+    clip-path: polygon(
+      55% 0%,
+      80% 12%,
+      95% 38%,
+      88% 60%,
+      70% 78%,
+      50% 85%,
+      30% 100%,
+      12% 85%,
+      20% 55%,
+      35% 35%,
+      40% 15%
+    );
+    filter: blur(0.5px);
+  }
+  .hero-figure-outline {
+    position: absolute;
+    right: -40px;
+    top: 20px;
+    width: 320px;
+    height: 420px;
+    background: linear-gradient(145deg,
+      rgba(214,255,60,0.35) 0%,
+      transparent 30%);
+    clip-path: polygon(
+      55% 0%, 58% 0%, 78% 12%, 80% 12%, 93% 38%, 95% 38%,
+      86% 60%, 88% 60%, 68% 78%, 70% 78%, 48% 85%, 50% 85%,
+      28% 100%, 30% 100%, 14% 85%, 12% 85%, 22% 55%, 20% 55%,
+      37% 35%, 35% 35%, 42% 15%, 40% 15%
+    );
+    mix-blend-mode: screen;
+    opacity: 0.6;
+  }
+  .ball {
+    position: absolute;
+    top: 80px;
+    right: 60px;
+    width: 28px;
+    height: 28px;
+    background: var(--ppl-accent);
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(214,255,60,0.6), 0 0 8px rgba(214,255,60,0.9);
+    animation: ball-pulse 2s ease-in-out infinite;
+  }
+  @keyframes ball-pulse {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-4px, 2px) scale(1.05); }
+  }
+  .ball::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid rgba(0,0,0,0.25);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 40%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 14px;
+    padding-bottom: 20px;
+  }
+
+  .team-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(20,20,20,0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 7px 12px 7px 8px;
+    border: 1px solid var(--ppl-border);
+    align-self: flex-start;
+  }
+  .team-logo {
+    width: 26px;
+    height: 26px;
+    background: linear-gradient(135deg, #FF6B35 0%, #E91E63 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #fff;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    font-style: italic;
+  }
+  .team-name {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: #fff;
+  }
+  .team-role {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ppl-dim);
+    letter-spacing: 1px;
+    margin-left: 4px;
+  }
+
+  .hero-identity {
+    margin-top: auto;
+  }
+  .context-line {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2.8px;
+    color: var(--ppl-accent);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .context-line::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(214,255,60,0.5) 0%, transparent 100%);
+  }
+  .player-name {
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -2.3px;
+    margin-bottom: 4px;
+  }
+  .player-name .first { color: rgba(255,255,255,0.92); }
+  .player-name .last {
+    color: var(--ppl-accent);
+    background: linear-gradient(110deg, var(--ppl-accent) 0%, #f0ff7a 50%, var(--ppl-accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .score-strip {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ppl-border);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .score-nums {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .score-num {
+    font-size: 30px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .score-num.current {
+    color: var(--ppl-accent);
+    font-size: 36px;
+  }
+  .score-sep {
+    width: 1px;
+    height: 28px;
+    background: var(--ppl-border-bright);
+    margin: 0 4px;
+  }
+  .set-dots {
+    display: flex;
+    gap: 5px;
+    margin-left: auto;
+    flex-direction: column;
+  }
+  .dot-row { display: flex; gap: 5px; }
+  .set-dot {
+    width: 7px;
+    height: 7px;
+    background: rgba(255,255,255,0.14);
+    border-radius: 50%;
+  }
+  .set-dot.won { background: var(--ppl-accent); }
+  .set-dot.losing { background: var(--ppl-muted); }
+
+  .vs-team {
+    text-align: right;
+    margin-left: auto;
+  }
+  .vs-label {
+    font-size: 8px;
+    color: var(--ppl-dim);
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .vs-name {
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Career section header ────────────────────────────────── */
+  .section-eyebrow {
+    padding: 4px 20px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow-text {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2.2px;
+    color: var(--ppl-dim);
+  }
+  .eyebrow-text.accent { color: var(--ppl-accent); }
+  .eyebrow-line {
+    flex: 1;
+    height: 1px;
+    background: var(--ppl-border);
+  }
+
+  /* ── Tonight card (earnings in real time) ─────────────────── */
+  .tonight-card {
+    margin: 0 16px 14px;
+    background:
+      radial-gradient(circle at 90% 20%, rgba(255,255,255,0.18) 0%, transparent 50%),
+      linear-gradient(135deg, var(--ppl-accent) 0%, var(--ppl-accent-dark) 100%);
+    color: #060606;
+    padding: 18px 18px 16px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+  .tonight-label {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2.2px;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.72);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tonight-label .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #060606;
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .tonight-amount {
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 6px;
+  }
+  .tonight-amount small {
+    font-size: 20px;
+    font-weight: 800;
+    opacity: 0.75;
+  }
+  .tonight-progress {
+    height: 5px;
+    background: rgba(0,0,0,0.15);
+    margin: 10px 0 6px;
+    overflow: hidden;
+  }
+  .tonight-progress-fill {
+    height: 100%;
+    width: 68%;
+    background: #060606;
+    position: relative;
+  }
+  .tonight-subline {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.72);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ── Career grid ──────────────────────────────────────────── */
+  .career-grid {
+    padding: 0 16px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    background: var(--ppl-card);
+    padding: 14px 14px 16px;
+    border: 1px solid var(--ppl-border);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--ppl-accent) 50%, transparent 100%);
+    opacity: 0.4;
+  }
+  .stat-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    color: var(--ppl-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-size: 26px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .stat-value small { font-size: 14px; font-weight: 800; color: var(--ppl-dim); }
+  .stat-delta {
+    font-size: 10px;
+    color: var(--ppl-accent);
+    font-weight: 800;
+    margin-top: 6px;
+    letter-spacing: 0.3px;
+  }
+  .stat-delta.neutral { color: var(--ppl-dim); }
+
+  /* ── Brand partners ───────────────────────────────────────── */
+  .partners-section { padding: 0 16px 18px; }
+  .partners-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .partners-title {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+  }
+  .partners-count {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ppl-dim);
+    letter-spacing: 1px;
+  }
+  .partners-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .partner-card {
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    padding: 12px 8px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+  }
+  .partner-logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fff;
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 11px;
+    letter-spacing: -0.5px;
+    font-style: italic;
+  }
+  .partner-logo.dark { background: #1a1a1a; color: #fff; border: 1px solid var(--ppl-border-bright); }
+  .partner-logo.gold { background: linear-gradient(135deg, #f8d77a, #c99734); color: #1a1a1a; }
+  .partner-name {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-align: center;
+  }
+  .partner-earn {
+    font-size: 9px;
+    font-weight: 900;
+    color: var(--ppl-accent);
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+  .partner-earn-unlocked::before {
+    content: '✓ ';
+    color: var(--ppl-accent);
+  }
+
+  /* ── Fan hub card ─────────────────────────────────────────── */
+  .fan-hub {
+    margin: 0 16px 16px;
+    background: var(--ppl-raised);
+    border: 1px solid var(--ppl-border);
+    position: relative;
+    overflow: hidden;
+  }
+  .fan-hub::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle at 100% 0%, rgba(214,255,60,0.16) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .fan-hub-inner {
+    padding: 16px;
+    position: relative;
+    z-index: 2;
+  }
+  .fan-count-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .fan-count-big {
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: -1.2px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .fan-count-sub {
+    font-size: 10px;
+    color: var(--ppl-dim);
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .fan-spike {
+    text-align: right;
+  }
+  .fan-spike-num {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--ppl-accent);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .fan-spike-label {
+    font-size: 9px;
+    color: var(--ppl-dim);
+    font-weight: 700;
+    margin-top: 3px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .predict-cta {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: var(--ppl-accent);
+    color: #060606;
+    border: none;
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+  }
+  .predict-cta::after {
+    content: '→';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+  }
+
+  /* ── CEO quote ribbon ─────────────────────────────────────── */
+  .ceo-ribbon {
+    margin: 0 16px 18px;
+    padding: 14px 16px;
+    border-left: 2px solid var(--ppl-accent);
+    background: rgba(214,255,60,0.03);
+  }
+  .ceo-ribbon-quote {
+    font-size: 11px;
+    font-style: italic;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.4;
+  }
+  .ceo-ribbon-attr {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--ppl-dim);
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+
+  /* ── Footer ───────────────────────────────────────────────── */
+  .footer {
+    padding: 14px 20px 28px;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 2.8px;
+    color: var(--ppl-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .footer .accent {
+    color: var(--ppl-accent);
+    font-weight: 900;
+  }
+
+  /* ── Caption under phone ──────────────────────────────────── */
+  .caption {
+    max-width: 390px;
+    text-align: center;
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .caption strong {
+    color: var(--ppl-accent);
+    font-weight: 800;
+  }
+  .caption .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    color: var(--ppl-accent);
+    background: rgba(214,255,60,0.1);
+    padding: 6px 12px;
+    border: 1px solid rgba(214,255,60,0.3);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="phone-frame">
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="scroll">
+        <!-- Status bar -->
+        <div class="status-bar">
+          <span>9:41</span>
+          <span class="status-icons"><span>●●●</span><span>📶</span><span>🔋</span></span>
+        </div>
+
+        <!-- App header -->
+        <div class="app-header">
+          <div class="ppl-mark">
+            <img src="./ppl-logo.webp" alt="Pro Padel League" class="ppl-logo"/>
+            <span class="ppl-mark-sub">Player Hub</span>
+          </div>
+          <div class="live-pill"><span class="live-dot"></span>ON COURT</div>
+        </div>
+
+        <!-- HERO ── player as the product ─────────────── -->
+        <section class="hero">
+          <div class="hero-bg"></div>
+          <div class="hero-figure"></div>
+          <div class="hero-figure-outline"></div>
+          <div class="ball"></div>
+
+          <div class="hero-content">
+            <div class="team-chip">
+              <div class="team-logo">MIA</div>
+              <span class="team-name">FLOW RIDA</span>
+              <span class="team-role">· #7</span>
+            </div>
+
+            <div class="hero-identity">
+              <div class="context-line">SEMIFINAL · NEW YORK · SET 3</div>
+              <h1 class="player-name">
+                <span class="first">FEDERICO</span><br>
+                <span class="last">CHINGOTTO</span>
+              </h1>
+
+              <div class="score-strip">
+                <div class="score-nums">
+                  <span class="score-num">6</span>
+                  <span class="score-num">4</span>
+                  <span class="score-num current">30</span>
+                </div>
+                <div class="set-dots">
+                  <div class="dot-row">
+                    <span class="set-dot won"></span>
+                    <span class="set-dot losing"></span>
+                    <span class="set-dot"></span>
+                  </div>
+                </div>
+                <div class="vs-team">
+                  <div class="vs-label">VS.</div>
+                  <div class="vs-name">Austin Matrix</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TONIGHT — the player's earnings in real time -->
+        <div class="section-eyebrow">
+          <span class="eyebrow-text accent">YOUR NIGHT · LIVE</span>
+          <span class="eyebrow-line"></span>
+          <span class="eyebrow-text">UPDATED 9 SEC AGO</span>
+        </div>
+
+        <div class="tonight-card">
+          <div class="tonight-label">
+            <span class="pulse-dot"></span>
+            Earnings this match
+          </div>
+          <div class="tonight-amount">$24,500 <small>+ bonus</small></div>
+          <div class="tonight-progress"><div class="tonight-progress-fill"></div></div>
+          <div class="tonight-subline">
+            <span>Locked: $18K base</span>
+            <span>+$6.5K if you win</span>
+          </div>
+        </div>
+
+        <!-- Career grid — two-cell brand/rank card -->
+        <div class="career-grid">
+          <div class="stat-card">
+            <div class="stat-label">SEASON EARN</div>
+            <div class="stat-value">$187<small>K</small></div>
+            <div class="stat-delta">+$42K vs PPL I</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">FAN BASE</div>
+            <div class="stat-value">312<small>K</small></div>
+            <div class="stat-delta">+12.4K this week</div>
+          </div>
+        </div>
+
+        <!-- Brand partners activating tonight -->
+        <div class="partners-section">
+          <div class="partners-header">
+            <span class="partners-title">LIVE PARTNERS</span>
+            <span class="partners-count">3 ACTIVATED TONIGHT</span>
+          </div>
+          <div class="partners-grid">
+            <div class="partner-card">
+              <div class="partner-logo dark">A</div>
+              <div class="partner-name">ADIDAS</div>
+              <div class="partner-earn partner-earn-unlocked">$1.2K / SET</div>
+            </div>
+            <div class="partner-card">
+              <div class="partner-logo gold">FC</div>
+              <div class="partner-name">FRÉDÉRIQUE</div>
+              <div class="partner-earn">+800 FANS</div>
+            </div>
+            <div class="partner-card">
+              <div class="partner-logo">P</div>
+              <div class="partner-name">PLAYA</div>
+              <div class="partner-earn">TRIP UNLOCK</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fan hub — the commercial flywheel -->
+        <div class="fan-hub">
+          <div class="fan-hub-inner">
+            <div class="fan-count-row">
+              <div>
+                <div class="fan-count-big">127,432</div>
+                <div class="fan-count-sub">FANS WATCHING LIVE</div>
+              </div>
+              <div class="fan-spike">
+                <div class="fan-spike-num">+4.1K</div>
+                <div class="fan-spike-label">last 10 min</div>
+              </div>
+            </div>
+            <button class="predict-cta">PUSH FANS TO PREDICT</button>
+          </div>
+        </div>
+
+        <!-- CEO quote woven in -->
+        <div class="ceo-ribbon">
+          <div class="ceo-ribbon-quote">
+            "When players earn more, build their brands, and grow their careers, everything else grows."
+          </div>
+          <div class="ceo-ribbon-attr">— PPL · BUILT DIFFERENTLY</div>
+        </div>
+
+        <!-- Footer lockup -->
+        <div class="footer">
+          POWERED BY <span class="accent">PADELLABS</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="caption">
+    <div class="tag">PPL × PADELLABS · Player Hub concept</div>
+    <p>The first surface a <strong>PPL player</strong> opens every match day. Score is context. Career is the headline — earnings, audience, brand partners all building in real time. <strong>If the player succeeds, the league succeeds.</strong></p>
+  </div>
+</div>
+
+</body>
+</html>
