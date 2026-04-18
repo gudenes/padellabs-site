@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PPL League Operations — padellabs concept</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+    background: #050505;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :root {
+    --ppl-accent: #D6FF3C;
+    --ppl-accent-dark: #a8cc2c;
+    --ppl-dim: rgba(255,255,255,0.52);
+    --ppl-muted: rgba(255,255,255,0.3);
+    --ppl-card: #0d0d0d;
+    --ppl-raised: #141414;
+    --ppl-border: rgba(255,255,255,0.07);
+    --ppl-border-bright: rgba(255,255,255,0.14);
+    --ppl-live: #FF3844;
+    --ppl-warn: #FFB84B;
+    --ppl-blue: #5EA8FF;
+    --ppl-purple: #C166FF;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+    gap: 28px;
+  }
+
+  /* ── Monitor frame ──────────────────────────────────────── */
+  .monitor-stand {
+    width: 100%;
+    max-width: 1340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .monitor {
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 16 / 10;
+    background: #000;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow:
+      0 0 0 2px rgba(255,255,255,0.05),
+      0 0 0 16px #111,
+      0 0 0 17px rgba(255,255,255,0.08),
+      0 80px 160px rgba(0,0,0,0.8),
+      0 30px 60px rgba(0,0,0,0.5);
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: #050505;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+  }
+
+  .stand-base {
+    width: 300px;
+    height: 14px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    border-radius: 2px 2px 0 0;
+    margin-top: -1px;
+  }
+  .stand-foot {
+    width: 440px;
+    height: 8px;
+    background: #0d0d0d;
+    border-radius: 100%;
+    margin-top: -2px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  }
+
+  /* ── Top command bar ────────────────────────────────────── */
+  .topbar {
+    height: 56px;
+    background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+    border-bottom: 1px solid var(--ppl-border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-right: 20px;
+    border-right: 1px solid var(--ppl-border);
+  }
+  .brand-logo {
+    height: 24px;
+    width: auto;
+    display: block;
+  }
+  .brand-sub {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 2.2px;
+    color: var(--ppl-dim);
+    text-transform: uppercase;
+  }
+
+  .event-context {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+  }
+  .event-context .live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--ppl-live);
+  }
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .divider-pipe { color: var(--ppl-muted); font-weight: 600; }
+
+  .kpi-strip {
+    display: flex;
+    margin-left: auto;
+    gap: 0;
+    align-items: center;
+  }
+  .kpi {
+    padding: 0 16px;
+    text-align: center;
+    position: relative;
+  }
+  .kpi + .kpi::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 24px;
+    width: 1px;
+    background: var(--ppl-border);
+  }
+  .kpi-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+    color: var(--ppl-dim);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+  }
+  .kpi-value {
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-value.accent { color: var(--ppl-accent); }
+  .kpi-value.warn { color: var(--ppl-warn); }
+
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 12px;
+    border: 1px solid var(--ppl-border);
+    margin-left: 12px;
+  }
+  .user-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ppl-accent), var(--ppl-accent-dark));
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 900;
+  }
+  .user-role {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+  }
+
+  /* ── Main grid ───────────────────────────────────────────── */
+  .main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 1px;
+    background: var(--ppl-border);
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .left-col {
+    background: #050505;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .right-col {
+    background: #070707;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* ── Courts live tower ───────────────────────────────────── */
+  .panel-header {
+    padding: 14px 18px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--ppl-border);
+  }
+  .panel-title {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2.2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-title::before {
+    content: '';
+    width: 3px;
+    height: 12px;
+    background: var(--ppl-accent);
+  }
+  .panel-meta {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ppl-dim);
+    letter-spacing: 1.2px;
+  }
+
+  .courts-tower {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--ppl-border);
+    padding: 0;
+  }
+
+  .court-card {
+    background: #080808;
+    padding: 14px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 150px;
+    position: relative;
+    overflow: hidden;
+  }
+  .court-card.live::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--ppl-live);
+  }
+  .court-card.queued::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--ppl-warn);
+  }
+
+  .court-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .court-label {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+  }
+  .court-capacity {
+    font-size: 8px;
+    color: var(--ppl-dim);
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    margin-top: 1px;
+  }
+  .court-status {
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    padding: 3px 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .court-status.live { background: var(--ppl-live); color: #fff; }
+  .court-status.ended { background: rgba(255,255,255,0.08); color: var(--ppl-dim); }
+  .court-status.queued { background: var(--ppl-warn); color: #000; }
+  .court-status.turn { background: rgba(255,255,255,0.04); color: var(--ppl-dim); }
+
+  .match-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .team-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+  }
+  .team-row .team-badge {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 0.3px;
+    font-style: italic;
+  }
+  .tb-mia { background: linear-gradient(135deg, #FF6B35, #E91E63); color: #fff; }
+  .tb-aus { background: linear-gradient(135deg, #FFB84B, #FF6B35); color: #000; }
+  .tb-lax { background: linear-gradient(135deg, #5EA8FF, #4A5EFF); color: #fff; }
+  .tb-mex { background: linear-gradient(135deg, #22C55E, #14B8A6); color: #fff; }
+  .tb-nyc { background: linear-gradient(135deg, #1a1a1a, #333); color: #fff; border: 1px solid #555; }
+  .tb-hou { background: linear-gradient(135deg, #C166FF, #7B3FE4); color: #fff; }
+  .tb-lv  { background: linear-gradient(135deg, #f8d77a, #c99734); color: #000; }
+  .tb-sd  { background: linear-gradient(135deg, #22D3EE, #0EA5E9); color: #000; }
+
+  .team-name {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    flex: 1;
+    text-transform: uppercase;
+  }
+  .team-name.losing { color: var(--ppl-dim); }
+  .team-score-sets {
+    display: flex;
+    gap: 6px;
+    font-variant-numeric: tabular-nums;
+    align-items: center;
+  }
+  .team-score-sets .s {
+    font-size: 13px;
+    font-weight: 900;
+    min-width: 11px;
+    text-align: center;
+  }
+  .team-score-sets .s.won { color: #fff; }
+  .team-score-sets .s.lost { color: var(--ppl-dim); }
+  .team-score-sets .s.current { color: var(--ppl-accent); font-size: 14px; }
+
+  .court-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 8px;
+    border-top: 1px solid var(--ppl-border);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--ppl-dim);
+    text-transform: uppercase;
+  }
+  .court-footer .watching {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ppl-accent);
+  }
+
+  /* ── Marquee match ───────────────────────────────────────── */
+  .marquee {
+    flex: 1;
+    padding: 18px;
+    background: linear-gradient(180deg, #050505 0%, #0a0a0a 100%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .marquee::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 60%;
+    height: 120%;
+    background: radial-gradient(circle at 50% 50%, rgba(214,255,60,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .marquee-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+  }
+  .marquee-title {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 2.2px;
+    color: var(--ppl-accent);
+    margin-bottom: 4px;
+  }
+  .marquee-matchup {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.8px;
+    line-height: 1.05;
+  }
+  .marquee-matchup .vs {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ppl-dim);
+    margin: 0 10px;
+    vertical-align: middle;
+    letter-spacing: 1px;
+  }
+
+  .broadcast-pill {
+    font-size: 9px;
+    font-weight: 900;
+    color: var(--ppl-live);
+    border: 1px solid var(--ppl-live);
+    padding: 4px 10px;
+    letter-spacing: 1.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .broadcast-pill .live-dot { background: var(--ppl-live); }
+
+  .marquee-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+  }
+  .player-block {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--ppl-border);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .player-block.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(214,255,60,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .player-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+  .player-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2a2a2a, #0a0a0a);
+    border: 1px solid var(--ppl-border-bright);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .player-avatar.highlight {
+    border: 1px solid var(--ppl-accent);
+    box-shadow: 0 0 20px rgba(214,255,60,0.2);
+  }
+  .player-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(255,255,255,0.1) 0%, transparent 70%);
+  }
+  .player-name-block {
+    flex: 1;
+    min-width: 0;
+  }
+  .player-first {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ppl-dim);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .player-last {
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+    line-height: 1;
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+  .player-meta {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    align-items: center;
+  }
+  .player-meta-chip {
+    font-size: 8px;
+    font-weight: 800;
+    padding: 2px 6px;
+    background: rgba(255,255,255,0.06);
+    letter-spacing: 0.8px;
+  }
+
+  .player-earning {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-top: 1px solid var(--ppl-border);
+  }
+  .earning-label {
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--ppl-dim);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .earning-value {
+    font-size: 18px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
+  }
+  .earning-value.accent { color: var(--ppl-accent); }
+
+  .player-stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--ppl-border);
+  }
+  .player-stat {
+    text-align: center;
+  }
+  .player-stat-num {
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .player-stat-label {
+    font-size: 7px;
+    font-weight: 700;
+    color: var(--ppl-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  /* ── Right column panels ─────────────────────────────────── */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--ppl-border);
+    min-height: 0;
+  }
+  .right-panel.grow { flex: 1; overflow-y: auto; }
+  .right-panel.grow::-webkit-scrollbar { display: none; }
+  .right-panel.grow { scrollbar-width: none; }
+
+  /* Decisions inbox */
+  .decisions-list {
+    padding: 4px 0;
+  }
+  .decision-item {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--ppl-border);
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .decision-item:hover { background: rgba(255,255,255,0.02); }
+  .decision-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 900;
+    background: var(--ppl-raised);
+    border: 1px solid var(--ppl-border-bright);
+  }
+  .decision-icon.urgent { background: rgba(255,56,68,0.12); border-color: rgba(255,56,68,0.5); color: var(--ppl-live); }
+  .decision-icon.money { background: rgba(214,255,60,0.1); border-color: rgba(214,255,60,0.4); color: var(--ppl-accent); }
+  .decision-icon.media { background: rgba(94,168,255,0.1); border-color: rgba(94,168,255,0.4); color: var(--ppl-blue); }
+  .decision-icon.ops { background: rgba(255,184,75,0.1); border-color: rgba(255,184,75,0.4); color: var(--ppl-warn); }
+
+  .decision-body {
+    min-width: 0;
+  }
+  .decision-title {
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0.1px;
+  }
+  .decision-sub {
+    font-size: 9px;
+    color: var(--ppl-dim);
+    font-weight: 600;
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+  }
+  .decision-time {
+    font-size: 8px;
+    font-weight: 800;
+    color: var(--ppl-dim);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  /* Commercial pulse */
+  .commerce-wrap {
+    padding: 14px 16px 16px;
+  }
+  .commerce-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--ppl-border);
+  }
+  .commerce-total-num {
+    font-size: 26px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .commerce-total-num .prefix { color: var(--ppl-dim); font-size: 16px; }
+  .commerce-total-label {
+    font-size: 8px;
+    color: var(--ppl-dim);
+    letter-spacing: 1.4px;
+    font-weight: 700;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .commerce-delta {
+    font-size: 10px;
+    font-weight: 900;
+    color: var(--ppl-accent);
+    text-align: right;
+    line-height: 1;
+  }
+  .commerce-delta small { color: var(--ppl-dim); font-weight: 700; display: block; margin-top: 3px; letter-spacing: 0.8px; font-size: 8px; }
+
+  .commerce-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .commerce-row {
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--ppl-border);
+  }
+  .commerce-row-label {
+    font-size: 8px;
+    color: var(--ppl-dim);
+    letter-spacing: 1px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .commerce-row-value {
+    font-size: 14px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Player impact */
+  .impact-wrap {
+    padding: 14px 16px 14px;
+  }
+  .impact-big-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .impact-big-num {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -1.2px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .impact-big-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--ppl-dim);
+    text-align: right;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+
+  .impact-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 44px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+  }
+  .bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--ppl-accent) 0%, rgba(214,255,60,0.2) 100%);
+    min-height: 4px;
+    position: relative;
+  }
+  .bar.dim { background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 100%); }
+
+  .impact-distribution {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: var(--ppl-dim);
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    padding-top: 6px;
+    border-top: 1px solid var(--ppl-border);
+  }
+
+  /* ── Bottom franchise ticker ─────────────────────────────── */
+  .ticker {
+    flex-shrink: 0;
+    height: 44px;
+    background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+    border-top: 1px solid var(--ppl-border);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .ticker-label {
+    padding: 0 16px;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--ppl-accent);
+    border-right: 1px solid var(--ppl-border);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    background: #050505;
+    z-index: 2;
+  }
+  .ticker-items {
+    display: flex;
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+  .ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    border-right: 1px solid var(--ppl-border);
+    white-space: nowrap;
+  }
+  .ticker-rank {
+    font-size: 9px;
+    font-weight: 900;
+    color: var(--ppl-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .ticker-team {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .ticker-wins {
+    font-size: 10px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+  .ticker-wins.up { color: var(--ppl-accent); }
+  .ticker-wins.down { color: var(--ppl-muted); }
+
+  /* ── Caption ─────────────────────────────────────────────── */
+  .caption {
+    max-width: 720px;
+    text-align: center;
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    line-height: 1.55;
+    padding-top: 4px;
+  }
+  .caption strong { color: var(--ppl-accent); font-weight: 800; }
+  .caption .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    color: var(--ppl-accent);
+    background: rgba(214,255,60,0.1);
+    padding: 6px 12px;
+    border: 1px solid rgba(214,255,60,0.3);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="monitor-stand">
+  <div class="monitor">
+    <div class="screen">
+
+      <!-- TOP COMMAND BAR ──────────────────────────────────── -->
+      <header class="topbar">
+        <div class="brand">
+          <img src="./ppl-logo.webp" alt="Pro Padel League" class="brand-logo"/>
+          <div class="brand-sub">COMMAND · OPERATIONS</div>
+        </div>
+
+        <div class="event-context">
+          <span class="live-indicator"><span class="live-dot"></span>LIVE</span>
+          <span class="divider-pipe">|</span>
+          <span>PPL II · NEW YORK OPEN</span>
+          <span class="divider-pipe">|</span>
+          <span>DAY 2 · 7:42 PM EDT</span>
+        </div>
+
+        <div class="kpi-strip">
+          <div class="kpi">
+            <div class="kpi-label">Courts live</div>
+            <div class="kpi-value">2/4</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Matches today</div>
+            <div class="kpi-value">6 of 8</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Player payout tonight</div>
+            <div class="kpi-value accent">$847K</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Fans watching</div>
+            <div class="kpi-value">324K</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Decisions queued</div>
+            <div class="kpi-value warn">4</div>
+          </div>
+        </div>
+
+        <div class="user-pill">
+          <div class="user-avatar">M</div>
+          <span class="user-role">OPS LEAD</span>
+        </div>
+      </header>
+
+      <!-- MAIN GRID ──────────────────────────────────────────── -->
+      <div class="main">
+
+        <!-- LEFT: COURTS TOWER + MARQUEE ─────────────────── -->
+        <div class="left-col">
+
+          <!-- Courts Tower -->
+          <div class="panel-header">
+            <div class="panel-title">COURTS LIVE</div>
+            <div class="panel-meta">4 arenas · updated 3s ago</div>
+          </div>
+
+          <div class="courts-tower">
+            <!-- Arena 1 -->
+            <div class="court-card live">
+              <div class="court-head">
+                <div>
+                  <div class="court-label">ARENA 1 · CENTER</div>
+                  <div class="court-capacity">18,200 seats</div>
+                </div>
+                <div class="court-status live"><span class="live-dot"></span>SEMI</div>
+              </div>
+              <div class="match-pair">
+                <div class="team-row">
+                  <div class="team-badge tb-mia">MIA</div>
+                  <div class="team-name">Flow Rida</div>
+                  <div class="team-score-sets">
+                    <span class="s won">6</span>
+                    <span class="s lost">4</span>
+                    <span class="s current">30</span>
+                  </div>
+                </div>
+                <div class="team-row">
+                  <div class="team-badge tb-aus">AUS</div>
+                  <div class="team-name losing">Austin Matrix</div>
+                  <div class="team-score-sets">
+                    <span class="s lost">4</span>
+                    <span class="s won">6</span>
+                    <span class="s current">30</span>
+                  </div>
+                </div>
+              </div>
+              <div class="court-footer">
+                <span>SET 3 · 1h 47m</span>
+                <span class="watching">● 127K</span>
+              </div>
+            </div>
+
+            <!-- Arena 2 -->
+            <div class="court-card live">
+              <div class="court-head">
+                <div>
+                  <div class="court-label">ARENA 2 · NORTH</div>
+                  <div class="court-capacity">8,400 seats</div>
+                </div>
+                <div class="court-status live"><span class="live-dot"></span>SEMI</div>
+              </div>
+              <div class="match-pair">
+                <div class="team-row">
+                  <div class="team-badge tb-lax">LAX</div>
+                  <div class="team-name">Los Angeles</div>
+                  <div class="team-score-sets">
+                    <span class="s won">7</span>
+                    <span class="s current">2</span>
+                    <span class="s">—</span>
+                  </div>
+                </div>
+                <div class="team-row">
+                  <div class="team-badge tb-mex">MEX</div>
+                  <div class="team-name losing">Mexico Waves</div>
+                  <div class="team-score-sets">
+                    <span class="s lost">5</span>
+                    <span class="s current">1</span>
+                    <span class="s">—</span>
+                  </div>
+                </div>
+              </div>
+              <div class="court-footer">
+                <span>SET 2 · 58m</span>
+                <span class="watching">● 82K</span>
+              </div>
+            </div>
+
+            <!-- Arena 3 -->
+            <div class="court-card queued">
+              <div class="court-head">
+                <div>
+                  <div class="court-label">ARENA 3 · EAST</div>
+                  <div class="court-capacity">6,000 seats</div>
+                </div>
+                <div class="court-status queued">QUEUED</div>
+              </div>
+              <div class="match-pair">
+                <div class="team-row">
+                  <div class="team-badge tb-nyc">NYC</div>
+                  <div class="team-name">New York</div>
+                  <div class="team-score-sets">
+                    <span class="s">—</span>
+                  </div>
+                </div>
+                <div class="team-row">
+                  <div class="team-badge tb-sd">SDG</div>
+                  <div class="team-name">San Diego</div>
+                  <div class="team-score-sets">
+                    <span class="s">—</span>
+                  </div>
+                </div>
+              </div>
+              <div class="court-footer">
+                <span>STARTS 8:15 PM · WARM-UP</span>
+                <span>15 MIN</span>
+              </div>
+            </div>
+
+            <!-- Arena 4 -->
+            <div class="court-card">
+              <div class="court-head">
+                <div>
+                  <div class="court-label">ARENA 4 · SOUTH</div>
+                  <div class="court-capacity">4,500 seats</div>
+                </div>
+                <div class="court-status turn">TURNOVER</div>
+              </div>
+              <div class="match-pair">
+                <div class="team-row">
+                  <div class="team-badge tb-hou">HOU</div>
+                  <div class="team-name">Houston</div>
+                  <div class="team-score-sets">
+                    <span class="s won">6</span>
+                    <span class="s won">6</span>
+                    <span class="s">✓</span>
+                  </div>
+                </div>
+                <div class="team-row">
+                  <div class="team-badge tb-lv">LVG</div>
+                  <div class="team-name losing">Las Vegas</div>
+                  <div class="team-score-sets">
+                    <span class="s lost">3</span>
+                    <span class="s lost">4</span>
+                    <span class="s">—</span>
+                  </div>
+                </div>
+              </div>
+              <div class="court-footer">
+                <span>FINAL · HOUSTON ADVANCES</span>
+                <span>NEXT 9:00 PM</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Marquee match -->
+          <div class="marquee">
+            <div class="marquee-head">
+              <div>
+                <div class="marquee-title">MARQUEE MATCH · ARENA 1</div>
+                <div class="marquee-matchup">
+                  Chingotto / Tapia <span class="vs">VS</span> Bergamini / Jofre
+                </div>
+              </div>
+              <div class="broadcast-pill">
+                <span class="live-dot"></span>
+                TNT · ESPN+ · INSTAGRAM LIVE
+              </div>
+            </div>
+
+            <div class="marquee-grid">
+              <!-- Player 1 -->
+              <div class="player-block hero">
+                <div class="player-head">
+                  <div class="player-avatar highlight"></div>
+                  <div class="player-name-block">
+                    <div class="player-first">FEDERICO</div>
+                    <div class="player-last">CHINGOTTO</div>
+                    <div class="player-meta">
+                      <span class="player-meta-chip">MIA · #7</span>
+                      <span class="player-meta-chip">SEED 1</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="player-earning">
+                  <span class="earning-label">Earning this match</span>
+                  <span class="earning-value accent">$24,500</span>
+                </div>
+                <div class="player-stats-row">
+                  <div class="player-stat">
+                    <div class="player-stat-num">32</div>
+                    <div class="player-stat-label">Winners</div>
+                  </div>
+                  <div class="player-stat">
+                    <div class="player-stat-num">4</div>
+                    <div class="player-stat-label">Viboras</div>
+                  </div>
+                  <div class="player-stat">
+                    <div class="player-stat-num">89%</div>
+                    <div class="player-stat-label">Net win</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Player 2 -->
+              <div class="player-block">
+                <div class="player-head">
+                  <div class="player-avatar"></div>
+                  <div class="player-name-block">
+                    <div class="player-first">AGUSTÍN</div>
+                    <div class="player-last">TAPIA</div>
+                    <div class="player-meta">
+                      <span class="player-meta-chip">MIA · #1</span>
+                      <span class="player-meta-chip">SEED 1</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="player-earning">
+                  <span class="earning-label">Earning this match</span>
+                  <span class="earning-value accent">$24,500</span>
+                </div>
+                <div class="player-stats-row">
+                  <div class="player-stat">
+                    <div class="player-stat-num">28</div>
+                    <div class="player-stat-label">Winners</div>
+                  </div>
+                  <div class="player-stat">
+                    <div class="player-stat-num">2</div>
+                    <div class="player-stat-label">Bandejas</div>
+                  </div>
+                  <div class="player-stat">
+                    <div class="player-stat-num">92%</div>
+                    <div class="player-stat-label">First serve</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: DECISIONS + COMMERCE + IMPACT ─────────── -->
+        <div class="right-col">
+
+          <!-- Decisions -->
+          <div class="right-panel">
+            <div class="panel-header">
+              <div class="panel-title">DECISIONS · 4 PENDING</div>
+              <div class="panel-meta">OPS</div>
+            </div>
+            <div class="decisions-list">
+              <div class="decision-item">
+                <div class="decision-icon urgent">!</div>
+                <div class="decision-body">
+                  <div class="decision-title">Arena 3 medical timeout — extend 5 min?</div>
+                  <div class="decision-sub">Broadcast window tight · TV partner notified</div>
+                </div>
+                <div class="decision-time">2m</div>
+              </div>
+              <div class="decision-item">
+                <div class="decision-icon money">$</div>
+                <div class="decision-body">
+                  <div class="decision-title">Adidas bonus · Chingotto won Set 1</div>
+                  <div class="decision-sub">Auto-payout $1,200 · Confirm or hold</div>
+                </div>
+                <div class="decision-time">4m</div>
+              </div>
+              <div class="decision-item">
+                <div class="decision-icon media">▶</div>
+                <div class="decision-body">
+                  <div class="decision-title">Tapia post-match interview · ESPN</div>
+                  <div class="decision-sub">Approve 3 min window after semi</div>
+                </div>
+                <div class="decision-time">7m</div>
+              </div>
+              <div class="decision-item">
+                <div class="decision-icon ops">⚙</div>
+                <div class="decision-body">
+                  <div class="decision-title">Mexico Waves roster swap request</div>
+                  <div class="decision-sub">Replacing injured player · Day 3 only</div>
+                </div>
+                <div class="decision-time">14m</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Commerce pulse -->
+          <div class="right-panel">
+            <div class="panel-header">
+              <div class="panel-title">COMMERCE · TONIGHT</div>
+              <div class="panel-meta">LIVE</div>
+            </div>
+            <div class="commerce-wrap">
+              <div class="commerce-total">
+                <div>
+                  <div class="commerce-total-num"><span class="prefix">$</span>847K</div>
+                  <div class="commerce-total-label">Player payout tonight</div>
+                </div>
+                <div class="commerce-delta">
+                  ↑ $312K
+                  <small>vs PPL I avg</small>
+                </div>
+              </div>
+              <div class="commerce-breakdown">
+                <div class="commerce-row">
+                  <div class="commerce-row-label">Sponsor activations</div>
+                  <div class="commerce-row-value">12 / 18</div>
+                </div>
+                <div class="commerce-row">
+                  <div class="commerce-row-label">Merch via app</div>
+                  <div class="commerce-row-value">$31K</div>
+                </div>
+                <div class="commerce-row">
+                  <div class="commerce-row-label">Fan predictions</div>
+                  <div class="commerce-row-value">184K</div>
+                </div>
+                <div class="commerce-row">
+                  <div class="commerce-row-label">Ticket upgrades</div>
+                  <div class="commerce-row-value">+412</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Player impact -->
+          <div class="right-panel grow">
+            <div class="panel-header">
+              <div class="panel-title">PLAYER IMPACT</div>
+              <div class="panel-meta">40 ACTIVE</div>
+            </div>
+            <div class="impact-wrap">
+              <div class="impact-big-stat">
+                <div class="impact-big-num">$21.2K</div>
+                <div class="impact-big-label">Avg player<br>earning tonight</div>
+              </div>
+              <div class="impact-chart">
+                <div class="bar" style="height: 30%;"></div>
+                <div class="bar" style="height: 45%;"></div>
+                <div class="bar" style="height: 40%;"></div>
+                <div class="bar" style="height: 58%;"></div>
+                <div class="bar" style="height: 52%;"></div>
+                <div class="bar" style="height: 70%;"></div>
+                <div class="bar" style="height: 64%;"></div>
+                <div class="bar" style="height: 82%;"></div>
+                <div class="bar" style="height: 76%;"></div>
+                <div class="bar" style="height: 95%;"></div>
+                <div class="bar" style="height: 88%;"></div>
+                <div class="bar dim" style="height: 68%;"></div>
+              </div>
+              <div class="impact-distribution">
+                <span>$8K floor</span>
+                <span>Median $19K</span>
+                <span>$42K top</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- FRANCHISE TICKER ──────────────────────────────────── -->
+      <div class="ticker">
+        <div class="ticker-label">PPL II STANDINGS</div>
+        <div class="ticker-items">
+          <div class="ticker-item"><span class="ticker-rank">1</span><span class="ticker-team">MIAMI FLOW RIDA</span><span class="ticker-wins up">8W-1L</span></div>
+          <div class="ticker-item"><span class="ticker-rank">2</span><span class="ticker-team">AUSTIN MATRIX</span><span class="ticker-wins up">7-2</span></div>
+          <div class="ticker-item"><span class="ticker-rank">3</span><span class="ticker-team">LOS ANGELES</span><span class="ticker-wins up">6-3</span></div>
+          <div class="ticker-item"><span class="ticker-rank">4</span><span class="ticker-team">HOUSTON</span><span class="ticker-wins up">6-3</span></div>
+          <div class="ticker-item"><span class="ticker-rank">5</span><span class="ticker-team">NEW YORK</span><span class="ticker-wins">5-4</span></div>
+          <div class="ticker-item"><span class="ticker-rank">6</span><span class="ticker-team">MEXICO WAVES</span><span class="ticker-wins">4-5</span></div>
+          <div class="ticker-item"><span class="ticker-rank">7</span><span class="ticker-team">SAN DIEGO</span><span class="ticker-wins">4-5</span></div>
+          <div class="ticker-item"><span class="ticker-rank">8</span><span class="ticker-team">TORONTO</span><span class="ticker-wins down">3-6</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="stand-base"></div>
+  <div class="stand-foot"></div>
+</div>
+
+<div class="caption">
+  <div class="tag">PPL × PADELLABS · COMMAND concept</div>
+  <p>The league's operational nervous system. Every court, every player, every dollar — in one screen. Built around a single principle from the CEO's letter: <strong>"The league won't succeed unless our players do."</strong> Every metric surfaced here answers the question "are we delivering for the athletes?" — from payout tonight to sponsor activations to the medical-timeout call that protects their career.</p>
+</div>
+
+</body>
+</html>

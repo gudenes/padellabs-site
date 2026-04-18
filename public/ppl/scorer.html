@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PPL Live Scorer — padellabs concept</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+    background: #050505;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  :root {
+    --ppl-accent: #D6FF3C;
+    --ppl-accent-dark: #a8cc2c;
+    --ppl-dim: rgba(255,255,255,0.52);
+    --ppl-muted: rgba(255,255,255,0.3);
+    --ppl-card: #0d0d0d;
+    --ppl-raised: #141414;
+    --ppl-border: rgba(255,255,255,0.08);
+    --ppl-border-bright: rgba(255,255,255,0.18);
+    --ppl-live: #FF3844;
+    --ppl-warn: #FFB84B;
+    --mia: #FD4E5D;
+    --aus: #FFB84B;
+  }
+
+  body {
+    min-height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ──────────────────────────────────────────────── */
+  .hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    border-radius: 12px;
+    margin-bottom: 18px;
+  }
+  .hdr-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .ppl-mark {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-style: italic;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+    color: var(--ppl-accent);
+  }
+  .ppl-mark::after {
+    content: '•';
+    color: var(--ppl-accent);
+  }
+  .hdr-meta {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ppl-dim);
+  }
+  .hdr-meta strong { color: #fff; }
+  .hdr-mid {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+  .hdr-stat {
+    text-align: center;
+  }
+  .hdr-stat-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ppl-muted);
+    margin-bottom: 4px;
+  }
+  .hdr-stat-val {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .hdr-stat-val .accent { color: var(--ppl-accent); }
+  .hdr-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--ppl-live);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .live-pill .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── Sets summary ───────────────────────────────────────── */
+  .sets-row {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    padding: 10px 0 18px;
+    color: var(--ppl-dim);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .sets-row .set {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    font-variant-numeric: tabular-nums;
+  }
+  .sets-row .set-num {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ppl-muted);
+  }
+  .sets-row .set-score {
+    font-weight: 700;
+    color: #fff;
+  }
+  .sets-row .set-score .won { color: var(--ppl-accent); }
+
+  /* ── Main: three cards ───────────────────────────────────── */
+  .main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.1fr 1fr;
+    gap: 20px;
+    min-height: 0;
+  }
+
+  .team {
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    border-radius: 14px;
+    padding: 24px 24px 22px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .team.serving {
+    border-color: rgba(214, 255, 60, 0.25);
+  }
+  .team:hover {
+    border-color: var(--ppl-border-bright);
+  }
+  .team-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .team-flag {
+    width: 28px;
+    height: 20px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #fff;
+  }
+  .team-flag.mia { background: var(--mia); }
+  .team-flag.aus { background: var(--aus); color: #050505; }
+  .team-name {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .team-roster {
+    font-size: 12px;
+    color: var(--ppl-dim);
+    margin-bottom: 14px;
+    letter-spacing: 0.3px;
+  }
+  .team-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ppl-muted);
+    margin-bottom: 16px;
+  }
+  .team-status.live {
+    color: var(--ppl-accent);
+  }
+  .team-status .serving-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ppl-accent);
+    box-shadow: 0 0 12px var(--ppl-accent);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .team.serving .team-status .serving-dot { opacity: 1; }
+
+  .tap-btn {
+    flex: 1;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0e0e0e 100%);
+    border: 1px solid var(--ppl-border-bright);
+    border-radius: 14px;
+    color: #fff;
+    font-size: 96px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.14s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-family: inherit;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .tap-btn:hover {
+    border-color: var(--ppl-accent);
+    background: linear-gradient(180deg, #222 0%, #111 100%);
+  }
+  .tap-btn:active {
+    transform: scale(0.985);
+    background: var(--ppl-accent);
+    color: #050505;
+  }
+  .team.serving .tap-btn {
+    border-color: rgba(214,255,60,0.35);
+  }
+  .tap-btn-caption {
+    margin-top: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ppl-muted);
+    text-align: center;
+  }
+
+  /* ── Center card ─────────────────────────────────────────── */
+  .center {
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+  }
+  .center.star {
+    background: radial-gradient(ellipse at center, rgba(214,255,60,0.14) 0%, rgba(214,255,60,0.03) 50%, transparent 75%), var(--ppl-card);
+    border-color: rgba(214,255,60,0.5);
+    box-shadow: 0 0 60px rgba(214,255,60,0.15) inset, 0 0 40px rgba(214,255,60,0.1);
+  }
+  .center-tag {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ppl-muted);
+    padding: 5px 12px;
+    border: 1px solid var(--ppl-border);
+    border-radius: 4px;
+    transition: all 0.25s ease;
+  }
+  .center.star .center-tag {
+    color: var(--ppl-accent);
+    border-color: var(--ppl-accent);
+    background: rgba(214,255,60,0.08);
+    animation: starPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes starPulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(214,255,60,0); }
+    50% { box-shadow: 0 0 20px rgba(214,255,60,0.4); }
+  }
+  .score-display {
+    font-size: 96px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: #fff;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+  }
+  .score-display .dash {
+    color: var(--ppl-muted);
+    font-weight: 300;
+  }
+  .center.star .score-display {
+    color: var(--ppl-accent);
+    text-shadow: 0 0 30px rgba(214,255,60,0.4);
+  }
+  .center-caption {
+    font-size: 13px;
+    color: var(--ppl-dim);
+    text-align: center;
+    line-height: 1.5;
+    max-width: 240px;
+  }
+  .center-caption .accent { color: var(--ppl-accent); font-weight: 600; }
+  .center.game-won { background: rgba(214,255,60,0.08); border-color: var(--ppl-accent); }
+
+  /* ── Footer bar ──────────────────────────────────────────── */
+  .foot {
+    margin-top: 18px;
+    padding: 12px 20px;
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .foot-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .foot-btn {
+    background: transparent;
+    border: none;
+    color: var(--ppl-dim);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.14s ease;
+  }
+  .foot-btn:hover {
+    color: #fff;
+    background: var(--ppl-raised);
+  }
+  .foot-btn .ico {
+    opacity: 0.7;
+  }
+  .save-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--ppl-dim);
+    text-transform: uppercase;
+  }
+  .save-indicator::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ppl-accent);
+    box-shadow: 0 0 10px var(--ppl-accent);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  .broadcast-btn {
+    padding: 10px 20px;
+    background: var(--ppl-accent);
+    color: #050505;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.14s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .broadcast-btn:hover {
+    background: #fff;
+    transform: translateY(-1px);
+  }
+  .broadcast-btn::before {
+    content: '▶';
+    font-size: 10px;
+  }
+
+  /* ── Footnote strip (below the card in the deck) ─────────── */
+  .footnote {
+    display: none;
+  }
+
+  /* Responsive: graceful scale down in the iframe */
+  @media (max-height: 650px) {
+    body { padding: 14px; }
+    .hdr { padding: 10px 18px; margin-bottom: 12px; }
+    .sets-row { padding: 6px 0 12px; }
+    .team, .center { padding: 18px; }
+    .tap-btn { font-size: 80px; }
+    .score-display { font-size: 80px; }
+    .foot { margin-top: 12px; padding: 10px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="ppl-mark">PPL</div>
+    <div class="hdr-meta">PPL II · New York Open · <strong>Semifinal · Arena 1</strong></div>
+  </div>
+  <div class="hdr-mid">
+    <div class="hdr-stat">
+      <div class="hdr-stat-label">Set</div>
+      <div class="hdr-stat-val" id="set-num">3</div>
+    </div>
+    <div class="hdr-stat">
+      <div class="hdr-stat-label">Games this set</div>
+      <div class="hdr-stat-val"><span id="games-a">5</span> · <span id="games-b">4</span></div>
+    </div>
+    <div class="hdr-stat">
+      <div class="hdr-stat-label">Match clock</div>
+      <div class="hdr-stat-val" id="clock">1h 12m</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span class="live-pill"><span class="dot"></span>Live</span>
+  </div>
+</div>
+
+<div class="sets-row">
+  <div class="set">
+    <span class="set-num">Set 1</span>
+    <span class="set-score"><span class="won">6</span> · 4</span>
+  </div>
+  <div class="set">
+    <span class="set-num">Set 2</span>
+    <span class="set-score">3 · <span class="won">6</span></span>
+  </div>
+  <div class="set">
+    <span class="set-num">Set 3</span>
+    <span class="set-score"><span id="setscore-a">5</span> · <span id="setscore-b">4</span></span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="team serving" id="team-a" data-team="a">
+    <div class="team-head">
+      <span class="team-flag mia">MIA</span>
+      <span class="team-name">Chingotto / Tapia</span>
+    </div>
+    <div class="team-roster">Miami MC · Seed 1</div>
+    <div class="team-status live">
+      <span class="serving-dot"></span>
+      <span class="status-text">Serving</span>
+    </div>
+    <button class="tap-btn" onclick="scorePoint('a')">+</button>
+    <div class="tap-btn-caption">Tap for point</div>
+  </div>
+
+  <div class="center star" id="center">
+    <div class="center-tag" id="center-tag">Golden Point</div>
+    <div class="score-display">
+      <span id="pt-a">40</span>
+      <span class="dash">—</span>
+      <span id="pt-b">40</span>
+    </div>
+    <div class="center-caption" id="caption">
+      Next point decides the game.<br/>
+      <span class="accent">PPL format · auto-detected</span>
+    </div>
+  </div>
+
+  <div class="team" id="team-b" data-team="b">
+    <div class="team-head">
+      <span class="team-flag aus">AUS</span>
+      <span class="team-name">Bergamini / Jofre</span>
+    </div>
+    <div class="team-roster">Austin Matrix · Seed 3</div>
+    <div class="team-status">
+      <span class="serving-dot"></span>
+      <span class="status-text">Receiving</span>
+    </div>
+    <button class="tap-btn" onclick="scorePoint('b')">+</button>
+    <div class="tap-btn-caption">Tap for point</div>
+  </div>
+</div>
+
+<div class="foot">
+  <div class="foot-group">
+    <button class="foot-btn" onclick="undo()"><span class="ico">↺</span> Undo</button>
+    <button class="foot-btn"><span class="ico">⏸</span> Pause</button>
+    <button class="foot-btn"><span class="ico">🎤</span> Mic · AI</button>
+  </div>
+  <div class="save-indicator">Saving offline</div>
+  <button class="broadcast-btn">Live to broadcaster</button>
+</div>
+
+<script>
+  const POINTS = ['0', '15', '30', '40', 'AD'];
+
+  const state = {
+    pA: 3, pB: 3,
+    gA: 5, gB: 4,
+    sA: 2, sB: 2,
+    starPoint: true,
+    serving: 'a',
+    history: [],
+  };
+
+  function snapshot() {
+    return JSON.stringify({ pA: state.pA, pB: state.pB, gA: state.gA, gB: state.gB, starPoint: state.starPoint, serving: state.serving });
+  }
+
+  function scorePoint(team) {
+    state.history.push(snapshot());
+
+    const isA = team === 'a';
+    let p = isA ? state.pA : state.pB;
+    let op = isA ? state.pB : state.pA;
+
+    if (state.starPoint) {
+      winGame(team);
+      return render();
+    }
+
+    if (p < 3) {
+      if (isA) state.pA++; else state.pB++;
+    } else if (p === 3 && op < 3) {
+      winGame(team);
+    } else if (p === 3 && op === 3) {
+      state.starPoint = true;
+    }
+    render();
+  }
+
+  function winGame(team) {
+    if (team === 'a') state.gA++; else state.gB++;
+    state.pA = 0; state.pB = 0;
+    state.starPoint = false;
+    state.serving = state.serving === 'a' ? 'b' : 'a';
+    flashCenter('game-won', 'Game ' + (team === 'a' ? 'Chingotto / Tapia' : 'Bergamini / Jofre'));
+  }
+
+  function flashCenter(cls, msg) {
+    const el = document.getElementById('center');
+    const tag = document.getElementById('center-tag');
+    const cap = document.getElementById('caption');
+    el.classList.add(cls);
+    tag.textContent = 'Game won';
+    cap.innerHTML = '<span class="accent">' + msg + '</span>';
+    setTimeout(() => {
+      el.classList.remove(cls);
+      render();
+    }, 1400);
+  }
+
+  function undo() {
+    if (state.history.length === 0) return;
+    const prev = JSON.parse(state.history.pop());
+    Object.assign(state, prev);
+    render();
+  }
+
+  function render() {
+    document.getElementById('pt-a').textContent = state.pA === 3 && state.pB === 3 ? '40' : POINTS[Math.min(state.pA, 3)];
+    document.getElementById('pt-b').textContent = state.pA === 3 && state.pB === 3 ? '40' : POINTS[Math.min(state.pB, 3)];
+    document.getElementById('games-a').textContent = state.gA;
+    document.getElementById('games-b').textContent = state.gB;
+    document.getElementById('setscore-a').textContent = state.gA;
+    document.getElementById('setscore-b').textContent = state.gB;
+
+    document.getElementById('team-a').classList.toggle('serving', state.serving === 'a');
+    document.getElementById('team-b').classList.toggle('serving', state.serving === 'b');
+    document.getElementById('team-a').querySelector('.status-text').textContent = state.serving === 'a' ? 'Serving' : 'Receiving';
+    document.getElementById('team-a').querySelector('.team-status').classList.toggle('live', state.serving === 'a');
+    document.getElementById('team-b').querySelector('.status-text').textContent = state.serving === 'b' ? 'Serving' : 'Receiving';
+    document.getElementById('team-b').querySelector('.team-status').classList.toggle('live', state.serving === 'b');
+
+    const center = document.getElementById('center');
+    const tag = document.getElementById('center-tag');
+    const cap = document.getElementById('caption');
+
+    if (state.starPoint) {
+      center.classList.add('star');
+      tag.textContent = 'Golden Point';
+      cap.innerHTML = 'Next point decides the game.<br/><span class="accent">PPL format · auto-detected</span>';
+    } else {
+      center.classList.remove('star');
+      tag.textContent = 'Live point';
+      cap.innerHTML = 'Serving · <span class="accent">' + (state.serving === 'a' ? 'Chingotto / Tapia' : 'Bergamini / Jofre') + '</span>';
+    }
+  }
+</script>
+
+</body>
+</html>

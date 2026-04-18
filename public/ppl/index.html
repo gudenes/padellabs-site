@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PPL × padellabs — concept pitch</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+    background: #030303;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :root {
+    --ppl-accent: #D6FF3C;
+    --ppl-dim: rgba(255,255,255,0.55);
+    --ppl-muted: rgba(255,255,255,0.3);
+    --ppl-border: rgba(255,255,255,0.08);
+    --ppl-card: #0d0d0d;
+  }
+
+  /* ── Top nav ─────────────────────────────────────────────── */
+  .topnav {
+    position: sticky;
+    top: 0;
+    background: rgba(3,3,3,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--ppl-border);
+    z-index: 1000;
+  }
+  .topnav-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .topnav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .topnav-logo {
+    height: 22px;
+    width: auto;
+  }
+  .topnav-x {
+    font-size: 14px;
+    color: var(--ppl-muted);
+    font-weight: 700;
+  }
+  .topnav-padellabs {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 2.8px;
+    color: var(--ppl-accent);
+  }
+
+  .topnav-links {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+  .topnav-links a {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--ppl-dim);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .topnav-links a:hover { color: #fff; }
+  .topnav-links a.active { color: var(--ppl-accent); }
+
+  /* ── Hero / intro ────────────────────────────────────────── */
+  .hero-section {
+    padding: 120px 32px 80px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2.8px;
+    padding: 8px 14px;
+    border: 1px solid rgba(214,255,60,0.35);
+    background: rgba(214,255,60,0.08);
+    color: var(--ppl-accent);
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+  .hero-h1 {
+    font-size: 64px;
+    font-weight: 900;
+    letter-spacing: -2.5px;
+    line-height: 1;
+    margin-bottom: 22px;
+  }
+  .hero-h1 .accent {
+    color: var(--ppl-accent);
+    background: linear-gradient(110deg, var(--ppl-accent) 0%, #f0ff7a 50%, var(--ppl-accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 17px;
+    color: var(--ppl-dim);
+    line-height: 1.55;
+    max-width: 640px;
+    margin: 0 auto 40px;
+  }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--ppl-accent);
+    color: #000;
+    padding: 14px 24px;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: transform 0.15s;
+  }
+  .hero-cta:hover { transform: translateY(-2px); }
+  .hero-cta::after { content: '↓'; }
+
+  /* ── CEO quote block ─────────────────────────────────────── */
+  .ceo-quote {
+    max-width: 800px;
+    margin: 0 auto 100px;
+    padding: 32px 40px;
+    border-left: 3px solid var(--ppl-accent);
+    background: rgba(214,255,60,0.03);
+  }
+  .ceo-quote q {
+    font-size: 22px;
+    font-style: italic;
+    line-height: 1.45;
+    color: rgba(255,255,255,0.85);
+    quotes: '"' '"';
+    letter-spacing: -0.2px;
+  }
+  .ceo-quote-attr {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    color: var(--ppl-accent);
+    margin-top: 14px;
+    text-transform: uppercase;
+  }
+
+  /* ── Mockup section ──────────────────────────────────────── */
+  .mockup-section {
+    padding: 80px 32px 100px;
+    max-width: 1440px;
+    margin: 0 auto;
+    scroll-margin-top: 80px;
+  }
+  .mockup-section + .mockup-section {
+    border-top: 1px solid var(--ppl-border);
+  }
+
+  .section-intro {
+    max-width: 800px;
+    margin: 0 auto 60px;
+    text-align: center;
+  }
+  .section-num {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--ppl-accent);
+    margin-bottom: 14px;
+  }
+  .section-h2 {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1.2px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-p {
+    font-size: 15px;
+    color: var(--ppl-dim);
+    line-height: 1.6;
+  }
+
+  .mockup-frame {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+
+  iframe {
+    border: none;
+    background: #050505;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+  }
+
+  iframe.phone {
+    width: 430px;
+    height: 900px;
+  }
+  iframe.tablet {
+    width: 1040px;
+    max-width: 100%;
+    height: 720px;
+    border-radius: 10px;
+  }
+  iframe.desktop {
+    width: 100%;
+    max-width: 1340px;
+    height: 880px;
+  }
+
+  .section-takeaway {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 24px 28px;
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+  }
+  .takeaway-label {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    color: var(--ppl-accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .takeaway-text {
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.85);
+  }
+  .takeaway-text strong { color: var(--ppl-accent); font-weight: 800; }
+
+  /* ── Closing ─────────────────────────────────────────────── */
+  .closing {
+    padding: 120px 32px;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .closing-h {
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1.05;
+    margin-bottom: 20px;
+  }
+  .closing-p {
+    font-size: 16px;
+    color: var(--ppl-dim);
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+  .closing-card {
+    padding: 32px;
+    background: linear-gradient(135deg, rgba(214,255,60,0.08) 0%, rgba(214,255,60,0.02) 100%);
+    border: 1px solid rgba(214,255,60,0.25);
+    text-align: left;
+  }
+  .closing-card-label {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    color: var(--ppl-accent);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .closing-bullets {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .closing-bullets li {
+    display: flex;
+    gap: 14px;
+    align-items: start;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .closing-bullets li::before {
+    content: '●';
+    color: var(--ppl-accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .footer {
+    padding: 60px 32px 40px;
+    text-align: center;
+    border-top: 1px solid var(--ppl-border);
+  }
+  .footer-lockup {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 3.5px;
+    color: var(--ppl-muted);
+    text-transform: uppercase;
+  }
+  .footer-lockup .accent { color: var(--ppl-accent); font-weight: 900; }
+  .footer-sub {
+    font-size: 11px;
+    color: var(--ppl-muted);
+    margin-top: 12px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── Responsive ──────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .hero-h1 { font-size: 40px; letter-spacing: -1.5px; }
+    .hero-sub { font-size: 15px; }
+    .section-h2 { font-size: 26px; }
+    iframe.phone { width: 100%; max-width: 400px; height: 820px; }
+    iframe.tablet { width: 100%; height: 620px; }
+    iframe.desktop { height: 600px; }
+    .topnav-links { display: none; }
+    .ceo-quote { margin: 0 20px 60px; padding: 24px; }
+    .ceo-quote q { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TOP NAV ────────────────────────────────────────────── -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-brand">
+      <img src="./ppl-logo.webp" alt="PPL" class="topnav-logo"/>
+      <span class="topnav-x">×</span>
+      <span class="topnav-padellabs">PADELLABS</span>
+    </div>
+    <div class="topnav-links">
+      <a href="#player">Player</a>
+      <a href="#referee">Referee</a>
+      <a href="#operator">Operator</a>
+      <a href="#analyst">Analyst</a>
+      <a href="#partnership">Partnership</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="hero-tag">Concept · Built for PPL</div>
+  <h1 class="hero-h1">
+    The league <span class="accent">succeeds</span><br>when players do.
+  </h1>
+  <p class="hero-sub">
+    Five product surfaces — one for every human in the league. Players, referees, operators, analysts. If the PPL platform doesn't make every athlete richer, more visible, and better supported — it isn't the platform PPL deserves.
+  </p>
+  <a href="#player" class="hero-cta">See the concepts</a>
+</section>
+
+<!-- ── CEO QUOTE ──────────────────────────────────────────── -->
+<div class="ceo-quote">
+  <q>When players earn more, build their brands, and grow their careers, everything else grows.</q>
+  <div class="ceo-quote-attr">— from the PPL "built differently" letter</div>
+</div>
+
+<!-- ── SECTION 1 · FOR THE PLAYER ─────────────────────────── -->
+<section class="mockup-section" id="player">
+  <div class="section-intro">
+    <div class="section-num">01 · For the Player · Player Hub</div>
+    <h2 class="section-h2">Every player's career, building in real time</h2>
+    <p class="section-p">
+      What every athlete sees the moment they step on court. Score is context. Earnings, audience growth, and sponsor triggers are the headlines — because that's what turns a match into a career.
+    </p>
+  </div>
+
+  <div class="mockup-frame">
+    <iframe src="./player-hub.html" class="phone" loading="lazy" title="PPL Player Hub"></iframe>
+  </div>
+
+  <div class="section-takeaway">
+    <div class="takeaway-label">Design decisions</div>
+    <div class="takeaway-text">
+      <strong>Name over score.</strong> The hero element is the player, not the match. Match data is framed as context to their night, not the other way around. <strong>Earnings are live.</strong> The yellow $24,500 card grows in real time as sets are won and sponsor bonuses trigger — the economic reality of being a pro athlete, made visible. <strong>Sponsors are incentive structure, not branding wallpaper.</strong> Each brand partner shows what the player unlocks, not just a logo.
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 2 · FOR THE REFEREE ────────────────────────── -->
+<section class="mockup-section" id="referee">
+  <div class="section-intro">
+    <div class="section-num">02 · For the Referee · Live Scorer</div>
+    <h2 class="section-h2">One screen. Two taps per point. The night runs on this.</h2>
+    <p class="section-p">
+      Every PPL match has one referee and one tablet. This is what they live in for 90 minutes. Two giant tap targets, a center frame that auto-detects Golden Point at 40-40, and a single "Live to broadcaster" toggle that sends the scorer feed to every stream.
+    </p>
+  </div>
+
+  <div class="mockup-frame">
+    <iframe src="./scorer.html" class="tablet" loading="lazy" title="PPL Live Scorer"></iframe>
+  </div>
+
+  <div class="section-takeaway">
+    <div class="takeaway-label">Design decisions</div>
+    <div class="takeaway-text">
+      <strong>Golden Point auto-framed.</strong> At 40-40 the center card changes state — referee doesn't remember the rule, the app does. Zero training overhead for the court staff pool. <strong>Offline-first, always.</strong> Every tap persists locally and syncs when connectivity returns. A Wi-Fi hiccup at Arena 3 never loses a point. <strong>One stream, everywhere.</strong> The same tap that scores the point lights up the PadelNachos feed and the broadcast overlay. No plugin, no manual entry, no duplication.
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 3 · FOR THE OPERATOR · GLANCE ─────────────── -->
+<section class="mockup-section" id="operator">
+  <div class="section-intro">
+    <div class="section-num">03 · For the Operator · League Command</div>
+    <h2 class="section-h2">Three questions, answered at a glance</h2>
+    <p class="section-p">
+      What every league operator checks on a tournament night: what's happening now, what players are earning, and what needs my attention. One screen. No scrolling for the answer.
+    </p>
+  </div>
+
+  <div class="mockup-frame">
+    <iframe src="./operator-simple.html" class="desktop" loading="lazy" title="PPL League Command"></iframe>
+  </div>
+
+  <div class="section-takeaway">
+    <div class="takeaway-label">Design decisions</div>
+    <div class="takeaway-text">
+      <strong>Tonight's player payout is the hero KPI.</strong> Not viewership. Not sponsor count. The league's philosophy says players-first — so that's the number at the top, in padel yellow. <strong>The earnings distribution chart is the philosophy, visualised.</strong> $8K floor / $19K median / $42K top proves the league isn't making one star rich — it's building 40 careers.
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 4 · FOR THE OPERATOR · DETAIL ─────────────── -->
+<section class="mockup-section" id="detail">
+  <div class="section-intro">
+    <div class="section-num">04 · For the Operator · Operations Detail</div>
+    <h2 class="section-h2">When the glance isn't enough</h2>
+    <p class="section-p">
+      The same platform, deeper view. Every court, every marquee match, every pending decision in one frame. For the ops lead running the control room when four matches overlap.
+    </p>
+  </div>
+
+  <div class="mockup-frame">
+    <iframe src="./operator.html" class="desktop" loading="lazy" title="PPL Operations Detail"></iframe>
+  </div>
+
+  <div class="section-takeaway">
+    <div class="takeaway-label">Design decisions</div>
+    <div class="takeaway-text">
+      <strong>F1 timing-tower inspiration.</strong> Four courts stacked vertically, color-leading bars at each card's edge signal status (live / queued / turnover). An operator scans 4 arenas in 2 seconds. <strong>Decisions-first, not metrics-first.</strong> Sponsor bonus payouts, medical timeouts, media requests — the real workflow a tournament day runs on, currently duct-taped across Slack + email + spreadsheets.
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 5 · FOR THE ANALYST ────────────────────────── -->
+<section class="mockup-section" id="analyst">
+  <div class="section-intro">
+    <div class="section-num">05 · For the Analyst · Match Analytics</div>
+    <h2 class="section-h2">Every point generates story — automatically</h2>
+    <p class="section-p">
+      The moment the match ends, coaches, commentators, and content teams have their report. Win probability across the match, Golden Point breakdown, head-to-head metrics — all derived from the referee's tap log. No video tagging, no manual stats team, no delay.
+    </p>
+  </div>
+
+  <div class="mockup-frame">
+    <iframe src="./analytics.html" class="desktop" loading="lazy" title="PPL Match Analytics"></iframe>
+  </div>
+
+  <div class="section-takeaway">
+    <div class="takeaway-label">Design decisions</div>
+    <div class="takeaway-text">
+      <strong>Earnings is the hero KPI — same number the player saw in Section 01.</strong> The $24,500 in the player's pocket and the $24,500 in the coach's report are one event stream, not two. <strong>Golden Point breakdown tells the story of the match.</strong> 7 of 8 Golden Points to Chingotto/Tapia is why the match ended 2-1, not the rally count. <strong>Zero video required.</strong> Every metric is derived from the referee's tap log — works on the PPL arenas that don't have broadcast cameras, works on the ones that do.
+    </div>
+  </div>
+</section>
+
+<!-- ── CLOSING / PARTNERSHIP ─────────────────────────────── -->
+<section class="mockup-section" id="partnership">
+  <div class="closing">
+    <h2 class="closing-h">This is what we'd build<br>in year one.</h2>
+    <p class="closing-p">
+      These five surfaces are a thesis, not a product. They're meant to show what's possible when someone builds <em>for</em> PPL, not a generic league template retrofitted from tennis software. If we're aligned on the philosophy, the product falls out of that conversation.
+    </p>
+
+    <div class="closing-card">
+      <div class="closing-card-label">What I'd propose</div>
+      <ul class="closing-bullets">
+        <li><strong>Design partnership for Year 1.</strong> We build PPL's platform together — you shape the roadmap, we do the engineering. Rate structured to reflect the partnership, not a vendor transaction.</li>
+        <li><strong>Player-first by contract.</strong> Every feature we ship in Year 1 answers the same question: does this make PPL athletes richer, more visible, or better supported?</li>
+        <li><strong>Exclusive in the US market</strong> for the first 24 months. You get first-mover advantage, we get a lighthouse partner to build the international version around.</li>
+        <li><strong>PPL keeps its data and its brand.</strong> Platform is infrastructure. Your players, your league, your IP — always.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="footer-lockup">
+    POWERED BY <span class="accent">PADELLABS</span>
+  </div>
+  <div class="footer-sub">
+    padellabs.tech · concept deck for PPL
+  </div>
+</div>
+
+</body>
+</html>
