@@ -17,10 +17,10 @@ player-first PPL platform could look like, built to match their
 
 ## URLs after deploy
 
-- Full pitch page: `padellabs.tech/pitch/ppl/`
-- Player hub standalone: `padellabs.tech/pitch/ppl/player-hub.html`
-- League command: `padellabs.tech/pitch/ppl/operator-simple.html`
-- Operations detail: `padellabs.tech/pitch/ppl/operator.html`
+- Full pitch page: `padellabs.tech/ppl/`
+- Player hub standalone: `padellabs.tech/ppl/player-hub.html`
+- League command: `padellabs.tech/ppl/operator-simple.html`
+- Operations detail: `padellabs.tech/ppl/operator.html`
 
 ## Design tokens (for future extensions)
 
