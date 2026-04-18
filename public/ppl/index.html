@@ -213,6 +213,12 @@
     width: 430px;
     height: 900px;
   }
+  iframe.tablet {
+    width: 1040px;
+    max-width: 100%;
+    height: 720px;
+    border-radius: 10px;
+  }
   iframe.desktop {
     width: 100%;
     max-width: 1340px;
@@ -322,6 +328,7 @@
     .hero-sub { font-size: 15px; }
     .section-h2 { font-size: 26px; }
     iframe.phone { width: 100%; max-width: 400px; height: 820px; }
+    iframe.tablet { width: 100%; height: 620px; }
     iframe.desktop { height: 600px; }
     .topnav-links { display: none; }
     .ceo-quote { margin: 0 20px 60px; padding: 24px; }
@@ -340,9 +347,10 @@
       <span class="topnav-padellabs">PADELLABS</span>
     </div>
     <div class="topnav-links">
-      <a href="#player-hub">Player</a>
-      <a href="#operator">League Command</a>
-      <a href="#detail">Operations Detail</a>
+      <a href="#player">Player</a>
+      <a href="#referee">Referee</a>
+      <a href="#operator">Operator</a>
+      <a href="#analyst">Analyst</a>
       <a href="#partnership">Partnership</a>
     </div>
   </div>
@@ -355,9 +363,9 @@
     The league <span class="accent">succeeds</span><br>when players do.
   </h1>
   <p class="hero-sub">
-    Three product surfaces designed around a single idea: if the PPL platform doesn't make every athlete richer, more visible, and better supported — it isn't the platform PPL deserves.
+    Five product surfaces — one for every human in the league. Players, referees, operators, analysts. If the PPL platform doesn't make every athlete richer, more visible, and better supported — it isn't the platform PPL deserves.
   </p>
-  <a href="#player-hub" class="hero-cta">See the concepts</a>
+  <a href="#player" class="hero-cta">See the concepts</a>
 </section>
 
 <!-- ── CEO QUOTE ──────────────────────────────────────────── -->
@@ -366,10 +374,10 @@
   <div class="ceo-quote-attr">— from the PPL "built differently" letter</div>
 </div>
 
-<!-- ── SECTION 1 · PLAYER HUB ─────────────────────────────── -->
-<section class="mockup-section" id="player-hub">
+<!-- ── SECTION 1 · FOR THE PLAYER ─────────────────────────── -->
+<section class="mockup-section" id="player">
   <div class="section-intro">
-    <div class="section-num">01 · PLAYER APP</div>
+    <div class="section-num">01 · For the Player · Player Hub</div>
     <h2 class="section-h2">Every player's career, building in real time</h2>
     <p class="section-p">
       What every athlete sees the moment they step on court. Score is context. Earnings, audience growth, and sponsor triggers are the headlines — because that's what turns a match into a career.
@@ -388,10 +396,32 @@
   </div>
 </section>
 
-<!-- ── SECTION 2 · OPERATOR SIMPLIFIED ───────────────────── -->
+<!-- ── SECTION 2 · FOR THE REFEREE ────────────────────────── -->
+<section class="mockup-section" id="referee">
+  <div class="section-intro">
+    <div class="section-num">02 · For the Referee · Live Scorer</div>
+    <h2 class="section-h2">One screen. Two taps per point. The night runs on this.</h2>
+    <p class="section-p">
+      Every PPL match has one referee and one tablet. This is what they live in for 90 minutes. Two giant tap targets, a center frame that auto-detects Golden Point at 40-40, and a single "Live to broadcaster" toggle that sends the scorer feed to every stream.
+    </p>
+  </div>
+
+  <div class="mockup-frame">
+    <iframe src="./scorer.html" class="tablet" loading="lazy" title="PPL Live Scorer"></iframe>
+  </div>
+
+  <div class="section-takeaway">
+    <div class="takeaway-label">Design decisions</div>
+    <div class="takeaway-text">
+      <strong>Golden Point auto-framed.</strong> At 40-40 the center card changes state — referee doesn't remember the rule, the app does. Zero training overhead for the court staff pool. <strong>Offline-first, always.</strong> Every tap persists locally and syncs when connectivity returns. A Wi-Fi hiccup at Arena 3 never loses a point. <strong>One stream, everywhere.</strong> The same tap that scores the point lights up the PadelNachos feed and the broadcast overlay. No plugin, no manual entry, no duplication.
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 3 · FOR THE OPERATOR · GLANCE ─────────────── -->
 <section class="mockup-section" id="operator">
   <div class="section-intro">
-    <div class="section-num">02 · LEAGUE COMMAND</div>
+    <div class="section-num">03 · For the Operator · League Command</div>
     <h2 class="section-h2">Three questions, answered at a glance</h2>
     <p class="section-p">
       What every league operator checks on a tournament night: what's happening now, what players are earning, and what needs my attention. One screen. No scrolling for the answer.
@@ -410,11 +440,11 @@
   </div>
 </section>
 
-<!-- ── SECTION 3 · OPERATOR DETAIL ───────────────────────── -->
+<!-- ── SECTION 4 · FOR THE OPERATOR · DETAIL ─────────────── -->
 <section class="mockup-section" id="detail">
   <div class="section-intro">
-    <div class="section-num">03 · OPERATIONS DEEP VIEW</div>
-    <h2 class="section-h2">When the league needs more than three questions</h2>
+    <div class="section-num">04 · For the Operator · Operations Detail</div>
+    <h2 class="section-h2">When the glance isn't enough</h2>
     <p class="section-p">
       The same platform, deeper view. Every court, every marquee match, every pending decision in one frame. For the ops lead running the control room when four matches overlap.
     </p>
@@ -432,12 +462,34 @@
   </div>
 </section>
 
+<!-- ── SECTION 5 · FOR THE ANALYST ────────────────────────── -->
+<section class="mockup-section" id="analyst">
+  <div class="section-intro">
+    <div class="section-num">05 · For the Analyst · Match Analytics</div>
+    <h2 class="section-h2">Every point generates story — automatically</h2>
+    <p class="section-p">
+      The moment the match ends, coaches, commentators, and content teams have their report. Win probability across the match, Golden Point breakdown, head-to-head metrics — all derived from the referee's tap log. No video tagging, no manual stats team, no delay.
+    </p>
+  </div>
+
+  <div class="mockup-frame">
+    <iframe src="./analytics.html" class="desktop" loading="lazy" title="PPL Match Analytics"></iframe>
+  </div>
+
+  <div class="section-takeaway">
+    <div class="takeaway-label">Design decisions</div>
+    <div class="takeaway-text">
+      <strong>Earnings is the hero KPI — same number the player saw in Section 01.</strong> The $24,500 in the player's pocket and the $24,500 in the coach's report are one event stream, not two. <strong>Golden Point breakdown tells the story of the match.</strong> 7 of 8 Golden Points to Chingotto/Tapia is why the match ended 2-1, not the rally count. <strong>Zero video required.</strong> Every metric is derived from the referee's tap log — works on the PPL arenas that don't have broadcast cameras, works on the ones that do.
+    </div>
+  </div>
+</section>
+
 <!-- ── CLOSING / PARTNERSHIP ─────────────────────────────── -->
 <section class="mockup-section" id="partnership">
   <div class="closing">
     <h2 class="closing-h">This is what we'd build<br>in year one.</h2>
     <p class="closing-p">
-      These three surfaces are a thesis, not a product. They're meant to show what's possible when someone builds <em>for</em> PPL, not a generic league template retrofitted from tennis software. If we're aligned on the philosophy, the product falls out of that conversation.
+      These five surfaces are a thesis, not a product. They're meant to show what's possible when someone builds <em>for</em> PPL, not a generic league template retrofitted from tennis software. If we're aligned on the philosophy, the product falls out of that conversation.
     </p>
 
     <div class="closing-card">

@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PPL Match Analytics — padellabs concept</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+    background: #050505;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :root {
+    --ppl-accent: #D6FF3C;
+    --ppl-accent-dark: #a8cc2c;
+    --ppl-dim: rgba(255,255,255,0.52);
+    --ppl-muted: rgba(255,255,255,0.3);
+    --ppl-faint: rgba(255,255,255,0.12);
+    --ppl-card: #0d0d0d;
+    --ppl-raised: #141414;
+    --ppl-border: rgba(255,255,255,0.08);
+    --ppl-border-bright: rgba(255,255,255,0.16);
+    --ppl-live: #FF3844;
+    --ppl-warn: #FFB84B;
+    --mia: #FD4E5D;
+    --aus: #FFB84B;
+  }
+
+  body {
+    padding: 28px 36px 40px;
+    min-height: 100vh;
+  }
+
+  /* ── Top bar ─────────────────────────────────────────────── */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--ppl-border);
+    margin-bottom: 24px;
+    gap: 32px;
+  }
+  .topbar-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .topbar-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ppl-accent);
+  }
+  .topbar-eyebrow::after {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--ppl-faint);
+  }
+  .match-headline {
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .match-headline .accent { color: var(--ppl-accent); }
+  .match-headline .muted { color: var(--ppl-muted); font-weight: 400; font-size: 18px; letter-spacing: -0.01em; }
+  .match-meta {
+    font-size: 12px;
+    color: var(--ppl-dim);
+    margin-top: 6px;
+    letter-spacing: 0.3px;
+  }
+  .match-meta strong { color: #fff; font-weight: 600; }
+
+  .topbar-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .action-btn {
+    padding: 9px 14px;
+    background: var(--ppl-raised);
+    border: 1px solid var(--ppl-border);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.14s ease;
+  }
+  .action-btn:hover {
+    border-color: var(--ppl-border-bright);
+    background: #1c1c1c;
+  }
+  .action-btn.primary {
+    background: var(--ppl-accent);
+    color: #050505;
+    border-color: var(--ppl-accent);
+    font-weight: 800;
+  }
+  .action-btn.primary:hover {
+    background: #fff;
+    border-color: #fff;
+  }
+
+  /* ── KPI row ─────────────────────────────────────────────── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .kpi {
+    padding: 16px 18px;
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .kpi.hero {
+    background: linear-gradient(135deg, rgba(214,255,60,0.14) 0%, rgba(214,255,60,0.04) 100%);
+    border-color: rgba(214,255,60,0.35);
+  }
+  .kpi-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ppl-muted);
+  }
+  .kpi.hero .kpi-label { color: var(--ppl-accent); }
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi.hero .kpi-value { color: var(--ppl-accent); font-size: 30px; }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--ppl-dim);
+    font-weight: 500;
+  }
+  .kpi-sub .accent { color: var(--ppl-accent); font-weight: 700; }
+
+  /* ── Two-column grid ─────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .panel {
+    background: var(--ppl-card);
+    border: 1px solid var(--ppl-border);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  .panel-title {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .panel-meta {
+    font-size: 11px;
+    color: var(--ppl-dim);
+    letter-spacing: 0.3px;
+  }
+  .panel-meta .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ppl-accent);
+    margin-right: 6px;
+    vertical-align: middle;
+    box-shadow: 0 0 8px var(--ppl-accent);
+  }
+
+  /* ── Win probability chart ───────────────────────────────── */
+  .chart-wrap {
+    position: relative;
+    height: 220px;
+    margin: 0 -4px;
+  }
+  .chart-wrap svg { width: 100%; height: 100%; display: block; }
+  .chart-axis {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 4px 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ppl-muted);
+    border-top: 1px dashed var(--ppl-faint);
+    margin-top: 4px;
+  }
+  .chart-axis span {
+    flex: 1;
+    text-align: center;
+  }
+  .chart-axis span strong { color: #fff; font-weight: 700; }
+  .chart-y {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 220px;
+    width: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--ppl-muted);
+    padding: 6px 0;
+  }
+
+  /* ── Golden points breakdown panel ───────────────────────── */
+  .gp-team-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--ppl-border);
+  }
+  .gp-team-row:last-of-type { border-bottom: none; }
+  .gp-team-flag {
+    width: 30px;
+    height: 22px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .gp-team-flag.mia { background: var(--mia); }
+  .gp-team-flag.aus { background: var(--aus); color: #050505; }
+  .gp-team-name {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .gp-team-won {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .gp-team-pct {
+    font-size: 11px;
+    color: var(--ppl-dim);
+    font-weight: 600;
+    min-width: 40px;
+    text-align: right;
+  }
+  .gp-team-won.hi { color: var(--ppl-accent); }
+
+  .gp-by-set {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ppl-border);
+  }
+  .gp-by-set-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ppl-muted);
+    margin-bottom: 10px;
+  }
+  .gp-set-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 12px;
+  }
+  .gp-set-row-label {
+    flex: 1;
+    font-weight: 600;
+    color: var(--ppl-dim);
+  }
+  .gp-set-row-val {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: #fff;
+  }
+  .gp-set-row-val .sep { color: var(--ppl-muted); font-weight: 400; margin: 0 4px; }
+
+  /* ── Head-to-head panel ──────────────────────────────────── */
+  .h2h-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 110px 1fr 40px;
+    align-items: center;
+    padding: 9px 0;
+    gap: 10px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--ppl-border);
+  }
+  .h2h-row:last-child { border-bottom: none; }
+  .h2h-a-val {
+    font-weight: 800;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+  }
+  .h2h-a-val.win { color: var(--ppl-accent); }
+  .h2h-b-val {
+    font-weight: 800;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+  }
+  .h2h-b-val.win { color: var(--ppl-accent); }
+  .h2h-label {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ppl-muted);
+  }
+  .h2h-bar {
+    height: 8px;
+    background: var(--ppl-faint);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .h2h-bar .fill {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: var(--ppl-accent);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(214,255,60,0.3);
+  }
+  .h2h-bar.b .fill {
+    background: rgba(255,255,255,0.35);
+    box-shadow: none;
+  }
+  .h2h-bar.a .fill { right: 0; }
+  .h2h-bar.b .fill { left: 0; }
+
+  /* ── Footer ──────────────────────────────────────────────── */
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 4px 0;
+    font-size: 11px;
+    color: var(--ppl-muted);
+    letter-spacing: 0.3px;
+  }
+  .foot-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ppl-accent);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 10px;
+  }
+  .foot-right::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ppl-accent);
+    box-shadow: 0 0 8px var(--ppl-accent);
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-eyebrow">Match analytics · PPL II · New York Open</div>
+    <div class="match-headline">
+      <span class="accent">Chingotto / Tapia</span> def.&nbsp;Bergamini / Jofre
+      <br/><span class="muted">6-4 · 3-6 · 7-5 · Semifinal · Arena 1 · 1h 23m</span>
+    </div>
+    <div class="match-meta">
+      <strong>142 points</strong> · <strong>8 golden points</strong> · <strong>4 momentum shifts</strong> · Day 2 · 7:42 PM EDT
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="action-btn">Share</button>
+    <button class="action-btn">Export PDF</button>
+    <button class="action-btn primary">Push to PadelNachos</button>
+  </div>
+</div>
+
+<!-- KPI row -->
+<div class="kpi-row">
+  <div class="kpi hero">
+    <div class="kpi-label">Earnings tonight</div>
+    <div class="kpi-value">$24,500</div>
+    <div class="kpi-sub">+ <span class="accent">$6.5K bonus</span> unlocked in Set 3</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Golden points won</div>
+    <div class="kpi-value">7 <span style="font-size:16px;color:var(--ppl-muted);font-weight:400;">/ 8</span></div>
+    <div class="kpi-sub"><span class="accent">88%</span> · dominant advantage</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Serve hold rate</div>
+    <div class="kpi-value">85%</div>
+    <div class="kpi-sub">vs 71% · held 11 of 13</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Momentum shifts</div>
+    <div class="kpi-value">4 <span style="font-size:14px;color:var(--ppl-muted);font-weight:400;">major</span></div>
+    <div class="kpi-sub">Biggest: 3-5 → 7-5 in Set 3</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Auto highlights</div>
+    <div class="kpi-value">12 <span style="font-size:14px;color:var(--ppl-muted);font-weight:400;">clips</span></div>
+    <div class="kpi-sub">Ready in PadelNachos</div>
+  </div>
+</div>
+
+<!-- Main grid -->
+<div class="grid">
+  <!-- Win probability chart -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title">Win probability · Team A</div>
+      <div class="panel-meta"><span class="dot"></span>Golden point</div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-y">
+        <span>100%</span>
+        <span>75%</span>
+        <span>50%</span>
+        <span>25%</span>
+        <span>0%</span>
+      </div>
+      <svg viewBox="0 0 800 220" preserveAspectRatio="none">
+        <!-- grid lines -->
+        <line x1="0" y1="55" x2="800" y2="55" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4"/>
+        <line x1="0" y1="110" x2="800" y2="110" stroke="rgba(255,255,255,0.08)" stroke-dasharray="4 4"/>
+        <line x1="0" y1="165" x2="800" y2="165" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4 4"/>
+        <!-- set dividers -->
+        <line x1="267" y1="0" x2="267" y2="220" stroke="rgba(255,255,255,0.12)" stroke-dasharray="2 4"/>
+        <line x1="533" y1="0" x2="533" y2="220" stroke="rgba(255,255,255,0.12)" stroke-dasharray="2 4"/>
+        <!-- area fill -->
+        <path d="M0,110 L40,85 L80,68 L120,60 L160,52 L200,58 L240,50 L267,48 L300,70 L340,95 L380,115 L420,135 L460,140 L500,150 L533,155 L560,148 L600,138 L640,95 L680,60 L720,38 L760,22 L800,14 L800,220 L0,220 Z"
+              fill="url(#lineGrad)"/>
+        <!-- line -->
+        <path d="M0,110 L40,85 L80,68 L120,60 L160,52 L200,58 L240,50 L267,48 L300,70 L340,95 L380,115 L420,135 L460,140 L500,150 L533,155 L560,148 L600,138 L640,95 L680,60 L720,38 L760,22 L800,14"
+              fill="none" stroke="#D6FF3C" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- golden point markers -->
+        <circle cx="115" cy="62" r="5" fill="#D6FF3C" stroke="#050505" stroke-width="2"/>
+        <circle cx="240" cy="50" r="5" fill="#D6FF3C" stroke="#050505" stroke-width="2"/>
+        <circle cx="385" cy="117" r="5" fill="#D6FF3C" stroke="#050505" stroke-width="2"/>
+        <circle cx="530" cy="155" r="5" fill="#D6FF3C" stroke="#050505" stroke-width="2"/>
+        <circle cx="640" cy="95" r="5" fill="#D6FF3C" stroke="#050505" stroke-width="2"/>
+        <circle cx="705" cy="48" r="5" fill="#D6FF3C" stroke="#050505" stroke-width="2"/>
+        <circle cx="760" cy="22" r="5" fill="#D6FF3C" stroke="#050505" stroke-width="2"/>
+        <circle cx="795" cy="16" r="5" fill="#D6FF3C" stroke="#050505" stroke-width="2"/>
+        <defs>
+          <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#D6FF3C" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#D6FF3C" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="chart-axis">
+      <span>Start</span>
+      <span><strong>Set 1 · 6-4</strong></span>
+      <span><strong>Set 2 · 3-6</strong></span>
+      <span><strong>Set 3 · 7-5</strong></span>
+    </div>
+  </div>
+
+  <!-- Golden points breakdown -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title">Golden points breakdown</div>
+      <div class="panel-meta">Critical moments</div>
+    </div>
+    <div class="gp-team-row">
+      <span class="gp-team-flag mia">MIA</span>
+      <span class="gp-team-name">Chingotto / Tapia</span>
+      <span class="gp-team-won hi">7</span>
+      <span class="gp-team-pct">88%</span>
+    </div>
+    <div class="gp-team-row">
+      <span class="gp-team-flag aus">AUS</span>
+      <span class="gp-team-name">Bergamini / Jofre</span>
+      <span class="gp-team-won">1</span>
+      <span class="gp-team-pct">12%</span>
+    </div>
+    <div class="gp-by-set">
+      <div class="gp-by-set-title">By set</div>
+      <div class="gp-set-row">
+        <span class="gp-set-row-label">Set 1</span>
+        <span class="gp-set-row-val">2 <span class="sep">·</span> 0</span>
+      </div>
+      <div class="gp-set-row">
+        <span class="gp-set-row-label">Set 2</span>
+        <span class="gp-set-row-val">1 <span class="sep">·</span> 1</span>
+      </div>
+      <div class="gp-set-row">
+        <span class="gp-set-row-label">Set 3</span>
+        <span class="gp-set-row-val">4 <span class="sep">·</span> 0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Head-to-head panel -->
+<div class="panel">
+  <div class="panel-head">
+    <div class="panel-title">Head to head</div>
+    <div class="panel-meta">Derived from 142 point events · no video tagging required</div>
+  </div>
+  <div class="h2h-row">
+    <span class="h2h-a-val win">85%</span>
+    <div class="h2h-bar a"><div class="fill" style="width: 85%;"></div></div>
+    <span class="h2h-label">Serve hold rate</span>
+    <div class="h2h-bar b"><div class="fill" style="width: 71%;"></div></div>
+    <span class="h2h-b-val">71%</span>
+  </div>
+  <div class="h2h-row">
+    <span class="h2h-a-val">4/6</span>
+    <div class="h2h-bar a"><div class="fill" style="width: 67%;"></div></div>
+    <span class="h2h-label">Break points converted</span>
+    <div class="h2h-bar b"><div class="fill" style="width: 25%;"></div></div>
+    <span class="h2h-b-val">2/8</span>
+  </div>
+  <div class="h2h-row">
+    <span class="h2h-a-val">42%</span>
+    <div class="h2h-bar a"><div class="fill" style="width: 42%;"></div></div>
+    <span class="h2h-label">Return points won</span>
+    <div class="h2h-bar b"><div class="fill win" style="width: 48%;"></div></div>
+    <span class="h2h-b-val win">48%</span>
+  </div>
+  <div class="h2h-row">
+    <span class="h2h-a-val win">8</span>
+    <div class="h2h-bar a"><div class="fill" style="width: 80%;"></div></div>
+    <span class="h2h-label">Longest point streak</span>
+    <div class="h2h-bar b"><div class="fill" style="width: 50%;"></div></div>
+    <span class="h2h-b-val">5</span>
+  </div>
+  <div class="h2h-row">
+    <span class="h2h-a-val win">82</span>
+    <div class="h2h-bar a"><div class="fill" style="width: 58%;"></div></div>
+    <span class="h2h-label">Total points won</span>
+    <div class="h2h-bar b"><div class="fill" style="width: 42%;"></div></div>
+    <span class="h2h-b-val">60</span>
+  </div>
+  <div class="h2h-row">
+    <span class="h2h-a-val win">16</span>
+    <div class="h2h-bar a"><div class="fill" style="width: 53%;"></div></div>
+    <span class="h2h-label">Games won</span>
+    <div class="h2h-bar b"><div class="fill" style="width: 47%;"></div></div>
+    <span class="h2h-b-val">14</span>
+  </div>
+</div>
+
+<div class="foot">
+  <span>All metrics auto-generated from the referee point log · 142 events · no video tagging</span>
+  <span class="foot-right">Live to PadelNachos</span>
+</div>
+
+</body>
+</html>
