@@ -1,0 +1,11 @@
+# Static marketing site for padellabs.tech.
+# Railway service `padel-labs-site` in project hearty-charm.
+
+[build]
+builder = "RAILPACK"
+buildCommand = "npm ci"
+
+[deploy]
+startCommand = "npx serve public -l ${PORT:-3000}"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

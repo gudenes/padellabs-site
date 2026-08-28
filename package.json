@@ -1,0 +1,10 @@
+{
+  "name": "padellabs-site",
+  "private": true,
+  "scripts": {
+    "start": "serve public -l ${PORT:-3000}"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}
