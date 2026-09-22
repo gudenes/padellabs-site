@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Padel Labs — Building the future of padel technology</title>
     <meta name="description" content="Padel Labs builds technology that connects every corner of the padel ecosystem — players, fans, clubs, federations, and brands.">
-    <link rel="icon" type="image/png" href="assets/padellabs-logo.png">
+    <!-- The wordmark is 466x124; squashed into a favicon it was an illegible smear.
+         These are the mark alone, squared, cream on navy so it holds up on both
+         light and dark browser tabs. -->
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/padellabs-favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/padellabs-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -406,6 +410,136 @@
             transform: translateX(3px);
         }
 
+        /* Cards stack; every other one puts its visual on the right so the
+           column of products reads with some rhythm instead of a straight edge. */
+        .product-card + .product-card {
+            margin-top: 2rem;
+        }
+
+        @media (min-width: 901px) {
+            .product-card.flip .product-visual { order: 2; }
+        }
+
+        /* Neutral badge for anything that isn't a shipped consumer product —
+           no pulsing dot, because that reads as a live status light. */
+        .product-badge.neutral {
+            color: var(--text-secondary);
+            background: rgba(15, 25, 35, 0.05);
+        }
+
+        .product-badge.neutral::before {
+            background: var(--text-secondary);
+            animation: none;
+        }
+
+        /* ---- PRODUCT VISUALS ----
+           One card shape, three brands. Each visual panel wears its own
+           product's colours rather than a house dark, so the row reads as a
+           family of distinct products instead of one flat block. */
+        .product-visual.pb { background: #f9ff43; }
+        .product-visual.pg { background: linear-gradient(150deg, #0b3fd1 0%, #06205e 100%); }
+
+        .mock {
+            width: 100%;
+            max-width: 340px;
+            font-size: 0.8rem;
+        }
+
+        .mock-logo {
+            display: block;
+            margin: 0 auto 1.4rem;
+        }
+
+        .mock-logo.wordmark { width: 155px; height: auto; }
+        .mock-logo.mark { width: 54px; height: 54px; border-radius: 13px; }
+
+        /* Padelboard: the overlay the product actually outputs — black bar,
+           yellow live point, exactly as it renders on a stream. */
+        .mock-board {
+            background: #10110c;
+            border-radius: 9px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(16, 17, 12, 0.28);
+        }
+
+        .mock-board-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.4rem 0.7rem 0.3rem;
+            font-size: 0.56rem;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.42);
+        }
+
+        .mock-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 0.42rem 0.7rem;
+            color: #ffffff;
+            font-size: 0.88rem;
+        }
+
+        .mock-row + .mock-row { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+        .mock-row:last-child { padding-bottom: 0.6rem; }
+
+        .mock-row .pair { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mock-row.lead .pair { color: #f9ff43; }
+
+        .mock-row .g {
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.55);
+            min-width: 0.85rem;
+            text-align: center;
+        }
+
+        .mock-row .pts {
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            min-width: 1.7rem;
+            text-align: center;
+            padding: 0.05rem 0.3rem;
+            border-radius: 4px;
+        }
+
+        .mock-row.lead .pts { background: #f9ff43; color: #10110c; }
+        .mock-row .pts.dim { color: rgba(255, 255, 255, 0.8); }
+
+        .mock-caption {
+            margin-top: 1rem;
+            font-size: 0.62rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .pb .mock-caption { color: rgba(16, 17, 12, 0.55); }
+        .pg .mock-caption { color: rgba(220, 231, 255, 0.55); }
+
+        /* padelgod: a request and the shape of what comes back. */
+        .mock-api {
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+            font-size: 0.68rem;
+            line-height: 1.85;
+            background: rgba(6, 32, 94, 0.55);
+            border: 1px solid rgba(143, 224, 255, 0.28);
+            border-radius: 10px;
+            padding: 0.9rem 1rem;
+            color: #dce7ff;
+            overflow-x: auto;
+        }
+
+        .mock-api .verb { color: #8fe0ff; font-weight: 700; }
+        .mock-api .key { color: rgba(220, 231, 255, 0.6); }
+        .mock-api .str { color: #ffffff; }
+        .mock-api .num { color: #8fe0ff; }
+        .mock-api .punc { color: rgba(220, 231, 255, 0.4); }
+
+
         /* ---- COMING SOON TEASER ---- */
         .coming-soon {
             max-width: 900px;
@@ -741,7 +875,7 @@
             <div class="products-header reveal">
                 <div class="section-label" style="color: var(--text-secondary);">Our Products</div>
                 <h2>Made for padel lovers</h2>
-                <p>Products that bring fans closer to the sport they love.</p>
+                <p>One data layer, three ways in — for fans, for the people broadcasting the sport, and for the developers building on it.</p>
             </div>
 
             <!-- PadelNachos Card -->
@@ -769,6 +903,96 @@
                     </div>
                     <a href="https://padelnachos.com" target="_blank" class="product-link">
                         Visit padelnachos.com <span class="arrow">&rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Padelboard Card -->
+            <div class="product-card flip reveal">
+                <div class="product-visual pb">
+                    <div class="mock">
+                        <img src="assets/padelboard-mark.png" alt="Padelboard" class="mock-logo mark">
+                        <div class="mock-board">
+                            <div class="mock-board-head">
+                                <span>Padelboard</span>
+                                <span>SF &middot; Madrid P1</span>
+                            </div>
+                            <div class="mock-row lead">
+                                <span class="pair">Gal&aacute;n / Chingotto</span>
+                                <span class="g">6</span>
+                                <span class="g">4</span>
+                                <span class="pts">30</span>
+                            </div>
+                            <div class="mock-row">
+                                <span class="pair">Coello / Tapia</span>
+                                <span class="g">3</span>
+                                <span class="g">4</span>
+                                <span class="pts dim">15</span>
+                            </div>
+                        </div>
+                        <div class="mock-caption">Tap. Score. Simple.</div>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-badge">Live</div>
+                    <h3>Padelboard</h3>
+                    <p class="desc">Broadcast-ready scoreboards in seconds. Build a real-time overlay for OBS, StreamYard or vMix, tap a point, and your stream keeps up. No account needed to try it.</p>
+                    <div class="product-stats">
+                        <div class="stat">
+                            <span class="stat-value">Free</span>
+                            <span class="stat-label">No account needed</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">OBS</span>
+                            <span class="stat-label">StreamYard, vMix</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">Browser</span>
+                            <span class="stat-label">Nothing to install</span>
+                        </div>
+                    </div>
+                    <a href="https://padelboard.padellabs.tech" target="_blank" class="product-link">
+                        Create your board <span class="arrow">&rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- padelgod Card -->
+            <div class="product-card reveal">
+                <div class="product-visual pg">
+                    <div class="mock">
+                        <img src="assets/padelgod-logo-light.png" alt="padelgod" class="mock-logo wordmark">
+                        <div class="mock-api">
+<span class="verb">GET</span> /v1/rankings?week=2026-38<br>
+<span class="punc">{</span><br>
+&nbsp;&nbsp;<span class="key">"rank"</span><span class="punc">:</span> <span class="num">1</span><span class="punc">,</span><br>
+&nbsp;&nbsp;<span class="key">"player"</span><span class="punc">:</span> <span class="str">"Arturo Coello"</span><span class="punc">,</span><br>
+&nbsp;&nbsp;<span class="key">"partner"</span><span class="punc">:</span> <span class="str">"Agust&iacute;n Tapia"</span><br>
+<span class="punc">}</span>
+                        </div>
+                        <div class="mock-caption">One feed. Same answer, forever.</div>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-badge neutral">For developers</div>
+                    <h3>padelgod</h3>
+                    <p class="desc">The data layer itself. Rankings, rosters and partnerships from one documented feed — the same pipeline that powers everything above, opened up to sportsbooks and builders.</p>
+                    <div class="product-stats">
+                        <div class="stat">
+                            <span class="stat-value">REST</span>
+                            <span class="stat-label">JSON API</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">FIP</span>
+                            <span class="stat-label">+ Premier Padel</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">Docs</span>
+                            <span class="stat-label">Developer reference</span>
+                        </div>
+                    </div>
+                    <a href="https://padelgod.io" target="_blank" class="product-link">
+                        Visit padelgod.io <span class="arrow">&rarr;</span>
                     </a>
                 </div>
             </div>
@@ -801,6 +1025,8 @@
         <img src="assets/padellabs-logo.png" alt="Padel Labs">
         <div class="footer-links">
             <a href="https://padelnachos.com" target="_blank">PadelNachos</a>
+            <a href="https://padelboard.padellabs.tech" target="_blank">Padelboard</a>
+            <a href="https://padelgod.io" target="_blank">padelgod</a>
             <a href="mailto:hello@padellabs.tech">Contact</a>
         </div>
         <span>&copy; 2026 Padel Labs</span>
