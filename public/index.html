@@ -119,6 +119,42 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 @keyframes spin{to{rotate:360deg}}
 .hud:has(a:hover,button:hover,input:hover) .pball svg{transform:scale(1.7)}
 .field:focus{outline:3px solid #CCF23A;outline-offset:2px}
+/* ---- Mobile adjustments (added after the Claude Design export) ---- */
+.tl,#process{touch-action:pan-y}
+@media (max-width:760px){
+  .deskonly{display:none !important}
+  .hbar{padding:16px 20px !important;flex-wrap:nowrap !important;gap:12px !important}
+  .hlogo{height:30px !important}
+  .hnav{gap:8px !important;flex-wrap:nowrap !important}
+  .hnav .nl{display:none}
+  .hnav .login,.hnav .mag{padding:9px 13px !important;font-size:14px;white-space:nowrap}
+  #top > div[style*="padding: 170px"]{padding:112px 20px 0 !important}
+  .hh{font-size:42px !important}
+  /* hero cards: image on top of the text instead of beside it */
+  .duo2{margin-top:44px !important;padding-bottom:48px !important}
+  .duo2 .pan2:first-child{flex-direction:column}
+  .duo2 .pan2:first-child > div:first-child{flex:0 0 auto !important;width:100%;height:170px !important}
+  .duo2 .pan2 [style*="white-space: nowrap"]{white-space:normal !important}
+  /* stacked rows: flex-basis was written for rows and turns into a height in a column */
+  .stack > *{flex-basis:auto !important}
+  .grid4 .mod{min-height:0 !important;padding:26px 22px !important}
+  /* Vision app story: every step readable, phone fits the screen and cycles by itself */
+  .stp{opacity:1 !important;min-height:0 !important;padding:22px 0}
+  .stp h3{font-size:34px !important}
+  .stp p{font-size:17px !important}
+  #app .stack{gap:32px !important;padding:24px 20px 64px !important}
+  .phone-wrap{align-self:center}
+  .phone-wrap > div:first-child{zoom:.8}
+  /* match insights */
+  .hslbl{display:none}
+  .stack.tlrow{flex-direction:row !important;gap:10px !important}
+  .stack.tlrow > .mono:first-child{flex:0 0 74px !important;font-size:10px !important}
+  .stack.tlrow > .tl{flex:1 1 auto !important}
+  .stack.tlrow > .tl > .mono:first-child{font-size:9px !important;letter-spacing:0}
+  /* join: phone sits under the form */
+  #join .stack{gap:40px !important;padding:72px 20px 56px !important}
+}
+
 @media (max-width:760px){.hh{font-size:52px !important}.stack{flex-direction:column !important}.grid4,.grid3{grid-template-columns:repeat(1,minmax(0,1fr)) !important}}
 </style>
 </head>
@@ -152,8 +188,8 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 <div class="pball" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="#CCF23A"></circle><path d="M3.5 6.5C8 9 8 15 3.5 17.5M20.5 6.5C16 9 16 15 20.5 17.5" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" opacity=".9"></path><circle cx="9" cy="8" r="3" fill="#FFFFFF" opacity=".25"></circle></svg></div>
 
 <header style="position: absolute; z-index: 10; top: 0; left: 0; right: 0">
-<div style="max-width: 1280px; margin: 0 auto; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap">
-<a href="#top" aria-label="Padel Labs home" style="display: flex; align-items: center; text-decoration: none"><img src="assets/padel-labs-logo-white.png" alt="Padel Labs" style="display: block; height: 40px; width: auto"></a>
+<div class="hbar" style="max-width: 1280px; margin: 0 auto; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+<a href="#top" aria-label="Padel Labs home" style="display: flex; align-items: center; text-decoration: none"><img class="hlogo" src="assets/padel-labs-logo-white.png" alt="Padel Labs" style="display: block; height: 40px; width: auto"></a>
 <nav class="hnav" aria-label="Main" style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap; font-size: 15px; font-weight: 500">
 <a class="nl" href="#modules">Modules</a>
 <a class="nl" href="#app">Vision app</a>
@@ -194,8 +230,8 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 <div style="position: absolute; inset: 0; background: linear-gradient(90deg, #07101C 0%, rgba(7,16,28,.92) 30%, rgba(7,16,28,.2) 62%, rgba(7,16,28,0) 100%)"></div>
 <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(7,16,28,.9) 0%, rgba(7,16,28,0) 18%, rgba(7,16,28,0) 55%, #07101C 92%)"></div>
 <div class="hscan"></div>
-<span class="mono" style="position: absolute; right: 32px; top: 112px; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: rgba(255,255,255,.6)">3D COURT · LIVE RECONSTRUCTION</span>
-<span class="mono" style="position: absolute; right: 32px; top: 132px; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: #CCF23A">TRACKING 4/4 · BALL LOCKED</span>
+<span class="mono deskonly" style="position: absolute; right: 32px; top: 112px; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: rgba(255,255,255,.6)">3D COURT · LIVE RECONSTRUCTION</span>
+<span class="mono deskonly" style="position: absolute; right: 32px; top: 132px; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: #CCF23A">TRACKING 4/4 · BALL LOCKED</span>
 </div>
 
 <div style="position: relative; max-width: 1280px; margin: 0 auto; padding: 170px 32px 0">
@@ -281,7 +317,7 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 <p class="mono" style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .14em; color: #3F6212">[ THE APP ]</p>
 <h2 style="margin: 16px 0 0; max-width: 640px; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 54px; line-height: 1.02; letter-spacing: -0.03em">Your analyst, in your pocket.</h2>
 </div>
-<p class="mono" style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .08em; color: #4A5868">SCROLL TO WALK THROUGH VISION ↓</p>
+<p class="mono deskonly" style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .08em; color: #4A5868">SCROLL TO WALK THROUGH VISION ↓</p>
 </div>
 <div class="stack" style="max-width: 1140px; margin: 0 auto; padding: 48px 32px 80px; display: flex; gap: 72px; align-items: flex-start; justify-content: center">
 <div class="vsteps" style="flex: 1 1 480px; min-width: 0; max-width: 560px; display: flex; flex-direction: column; padding: 190px 0 220px">
@@ -492,7 +528,7 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 <span style="font-family: Montserrat, sans-serif; font-weight: 800; font-size: 20px">Match timeline</span>
 <span class="mono" style="font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #CCF23A"><span id="tlread">MOVE ACROSS TO SCRUB</span></span>
 </div>
-<div class="stack" style="margin-top: 20px; display: flex; gap: 16px">
+<div class="stack tlrow" style="margin-top: 20px; display: flex; gap: 16px">
 <div class="mono" style="flex: 0 0 120px; display: flex; flex-direction: column; font-size: 12px; font-weight: 600; color: #C9D3DF">
 <span style="height: 28px; display: flex; align-items: center">SETS</span>
 <span style="height: 40px; display: flex; align-items: center">ACTIVE PLAY</span>
@@ -535,7 +571,7 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 
 <section id="process" style="position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; padding: 110px 32px 100px">
 <h2 style="margin: 0; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 54px; line-height: 1.02; letter-spacing: -0.03em">Record → Analyze → Improve.</h2>
-<p class="mono" style="margin: 14px 0 0; font-size: 13px; color: #4A5868; letter-spacing: .06em">MOVE YOUR MOUSE TO SCRUB THE TIMELINE</p>
+<p class="mono" id="procread" style="margin: 14px 0 0; font-size: 13px; color: #4A5868; letter-spacing: .06em">MOVE YOUR MOUSE TO SCRUB THE TIMELINE</p>
 <div style="position: relative; margin-top: 56px; height: 8px; background: #D5DCE4; border-radius: 4px">
 <div class="played" style="position: absolute; left: 0; top: 0; bottom: 0; background: #0E1A2B; border-radius: 4px"></div>
 <div class="playhead" aria-hidden="true" style="position: absolute; top: -10px; width: 28px; height: 28px; margin-left: -14px; border-radius: 50%; background: #CCF23A; border: 3px solid #0E1A2B"></div>
@@ -625,7 +661,7 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 
   // Process timeline scrub
   const proc = document.getElementById('process');
-  if (proc) proc.addEventListener('mousemove', (e) => {
+  if (proc) proc.addEventListener('pointermove', (e) => {
     const r = proc.getBoundingClientRect();
     const x = Math.min(1, Math.max(0, (e.clientX - r.left - 32) / (r.width - 64)));
     root.style.setProperty('--sx', (x * 100).toFixed(1) + '%');
@@ -633,7 +669,7 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 
   // Match timeline scrub
   const tl = document.querySelector('.tl'); const tlRead = document.getElementById('tlread');
-  if (tl) tl.addEventListener('mousemove', (e) => {
+  if (tl) tl.addEventListener('pointermove', (e) => {
     const r = tl.getBoundingClientRect();
     const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
     tl.style.setProperty('--tx', (x * 100).toFixed(2) + '%');
@@ -655,7 +691,19 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
     steps.forEach((b, i) => { const r = b.getBoundingClientRect(); const d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = i; } });
     if (best !== step) setStep(best);
   };
-  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); onScroll();
+  const small = matchMedia('(max-width: 760px)');
+  let cycle;
+  const arrange = () => {
+    clearInterval(cycle);
+    if (small.matches) cycle = setInterval(() => setStep((step + 1) % steps.length), 3200);
+    else onScroll();
+  };
+  addEventListener('scroll', () => { if (!small.matches) onScroll(); }, { passive: true });
+  addEventListener('resize', arrange); arrange();
+  if (matchMedia('(hover: none)').matches) {
+    const pr = document.getElementById('procread'); if (pr) pr.textContent = 'DRAG ACROSS TO SCRUB THE TIMELINE';
+    if (tlRead) tlRead.textContent = 'DRAG ACROSS TO SCRUB';
+  }
   stepDots.forEach((el) => el.addEventListener('click', () => setStep(+el.dataset.stepGo)));
 
   // Match insights tabs
