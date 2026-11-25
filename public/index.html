@@ -58,6 +58,22 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 @keyframes st1{15%,80%{opacity:1}100%{opacity:0}}@keyframes st2{20%,100%{opacity:1}}
 .itab{border:1px solid transparent;transition:background .3s,border-color .3s}.itab:hover{background:rgba(255,255,255,.04)}.itab.on{background:rgba(204,242,58,.08);border-color:rgba(204,242,58,.55)}.itab.on .inum{color:#CCF23A}
 .shot{position:relative}
+/* Intro — vertical composition for phones */
+@media (max-width:760px){
+.intro > div:first-child{flex-direction:column}
+.intro > div:first-child > div:first-child{width:136px !important;height:136px !important;flex:0 0 136px !important}
+.intro .imark{width:136px;height:136px}
+.intro .ilbl{font-size:10px;letter-spacing:.08em}
+.intro .ilbl:nth-of-type(1){right:calc(50% + 10px) !important;left:auto !important;top:-46px !important}
+.intro .ilbl:nth-of-type(2){left:calc(50% + 10px) !important;right:auto !important;top:-46px !important}
+.intro .ilbl:nth-of-type(3){right:calc(50% + 10px) !important;left:auto !important;top:164px !important}
+.intro .ilbl:nth-of-type(4){left:calc(50% + 10px) !important;right:auto !important;top:164px !important}
+.intro .iword{font-size:min(13vw,56px) !important;max-width:none;max-height:0;line-height:1.1;margin-top:26px;animation-name:wordV}
+.intro .iword span:first-child{padding-left:0 !important}
+.intro > div:first-child + div{margin-top:30px !important;width:100% !important;font-size:11px !important}
+}
+@keyframes wordV{from{max-height:0;opacity:0;transform:translateY(14px)}to{max-height:120px;opacity:1;transform:none}}
+
 .hs{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;padding:0;border:0;background:transparent;cursor:help;display:flex;align-items:center;justify-content:center}
 .hsdot{width:16px;height:16px;border-radius:50%;background:#CCF23A;box-shadow:0 0 0 3px #0E1A2B;position:relative}
 .hsdot::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid #9BCB1B;animation:hsp 1.8s ease-out infinite}@keyframes hsp{from{transform:scale(.6);opacity:1}to{transform:scale(2.2);opacity:0}}
@@ -71,7 +87,6 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 .bmark:hover .bdot{transform:translate(var(--fx),var(--fy));fill:#CCF23A}.bbond{transition:opacity .4s}.bmark:hover .bbond{opacity:.12}
 .bstat{position:relative;height:16px}.bs1,.bs2{position:absolute;left:0;white-space:nowrap;transition:opacity .3s}.bs2{opacity:0}.bmark:hover .bs1{opacity:0}.bmark:hover .bs2{opacity:1}
 .replay{transition:background .2s,color .2s}.replay:hover{background:#CCF23A;color:#0E1A2B}
-@media (max-width:760px){.iword{font-size:40px !important}.ilbl{display:none}}
 .pan{transition:flex-grow .55s cubic-bezier(.2,.7,.2,1),box-shadow .3s}.duo:hover .pan{flex-grow:.75}.duo .pan:hover{flex-grow:1.5;box-shadow:6px 6px 0 #CCF23A}
 .pan .cta{transition:letter-spacing .3s}.pan:hover .cta{letter-spacing:.16em}
 .seg span{height:8px;border-radius:2px;background:#CCF23A}.seg span.off{background:rgba(255,255,255,.22)}
