@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Padel Labs — AI-powered intelligence for padel</title>
+<meta name="description" content="Padel Labs builds AI-powered intelligence for padel — match insights, shot analysis and video review for players, coaches, clubs and federations.">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/padellabs-favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/padellabs-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600;800;900&amp;family=JetBrains+Mono:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#EEF1F4}
+a{color:#0E1A2B}a:hover{color:#0369A1}
+.hud{--mx:-100px;--my:-100px;--sx:30%}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.readout{position:absolute;left:var(--mx);top:var(--my);transform:translate(14px,14px);pointer-events:none;z-index:41;background:#0E1A2B;color:#CCF23A;font-size:11px;padding:5px 8px;border-radius:4px;white-space:nowrap}
+.blink{animation:blink 1.2s steps(2) infinite}@keyframes blink{50%{opacity:0}}
+.monitor{cursor:none}
+.lens{position:absolute;left:var(--px,50%);top:var(--py,50%);width:220px;height:220px;margin:-110px 0 0 -110px;border-radius:50%;border:3px solid #CCF23A;box-shadow:0 20px 50px rgba(0,0,0,.4);background-image:url(assets/court.jpg);background-repeat:no-repeat;background-size:300% auto;background-position:var(--lx,50%) var(--ly,50%);opacity:0;transform:scale(.6);transition:opacity .25s,transform .25s;pointer-events:none}
+.monitor:hover .lens{opacity:1;transform:scale(1)}
+.lens::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border:2px solid #CCF23A;border-radius:50%}
+.lock{animation:lock 3s ease-in-out infinite}@keyframes lock{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.rise{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}.d1{animation-delay:.1s}.d2{animation-delay:.22s}.d3{animation-delay:.34s}
+@keyframes rise{from{opacity:0;translate:0 20px}to{opacity:1;translate:0 0}}
+.tick{overflow:hidden}.tick-track{display:flex;gap:48px;width:max-content;animation:tk 40s linear infinite}.tick:hover .tick-track{animation-play-state:paused}
+@keyframes tk{to{transform:translateX(-50%)}}
+.mod{position:relative;transition:background .3s,color .3s}
+.mod::before,.mod::after{content:"";position:absolute;width:22px;height:22px;border-color:#0E1A2B;border-style:solid;transition:all .35s cubic-bezier(.2,.7,.2,1)}
+.mod::before{left:10px;top:10px;border-width:2px 0 0 2px}.mod::after{right:10px;bottom:10px;border-width:0 2px 2px 0}
+.mod:hover::before{left:-6px;top:-6px;border-color:#9BCB1B;width:40px;height:40px}.mod:hover::after{right:-6px;bottom:-6px;border-color:#9BCB1B;width:40px;height:40px}
+.mod:hover{background:#FFFFFF}
+.mod .idx{transition:background .3s,color .3s}.mod:hover .idx{background:#CCF23A}
+.tab{transition:background .2s,color .2s}.tab:hover{background:rgba(204,242,58,.35)}.tab.on{background:#CCF23A}
+.fade{animation:fade .4s cubic-bezier(.2,.7,.2,1) both}@keyframes fade{from{opacity:0;translate:12px 0}to{opacity:1;translate:0 0}}
+.playhead{left:var(--sx);transition:left .12s linear}.played{width:var(--sx);transition:width .12s linear}
+.row{background-image:linear-gradient(#CCF23A,#CCF23A);background-repeat:no-repeat;background-size:0% 100%;transition:background-size .45s cubic-bezier(.2,.7,.2,1)}
+.row:hover{background-size:100% 100%}
+.row .go{transition:transform .3s}.row:hover .go{transform:translateX(8px)}
+.mag{transform:translate(var(--bx,0px),var(--by,0px));transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+.strip{transition:transform .75s cubic-bezier(.65,0,.25,1)}
+.stp{opacity:.35;transition:opacity .4s}.stp.on{opacity:1}
+.stp .pill{transition:background .3s}.stp.on .pill{background:#CCF23A}
+.dotin{width:8px;background:#B8C3CF;transition:width .3s,background .3s}.dot.on .dotin{width:28px;background:#0E1A2B}
+.load{animation:load 2.4s ease-in-out infinite}@keyframes load{from{width:15%}to{width:92%}}
+.scan{position:absolute;left:0;right:0;height:80px;background:linear-gradient(to bottom,transparent,rgba(204,242,58,.25),transparent);animation:scan 2.8s linear infinite;pointer-events:none}@keyframes scan{from{top:-80px}to{top:100%}}
+@media (max-width:760px){.phone-wrap{position:static !important}}
+.intro{position:fixed;inset:0;z-index:100;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;animation:introOut .8s cubic-bezier(.7,0,.2,1) 3.6s forwards}
+@keyframes introOut{to{transform:translateY(-100%);visibility:hidden}}
+.imark{animation:lockpop .5s ease 1.75s both}@keyframes lockpop{50%{transform:scale(1.08)}}
+.idot{transform-box:view-box;animation:dotIn 2s cubic-bezier(.5,0,.2,1) both;fill:#0E1A2B}
+@keyframes dotIn{0%{opacity:0;fill:#9BCB1B;transform:translate(var(--fx),var(--fy)) scale(.3)}25%{opacity:1;fill:#9BCB1B;transform:translate(var(--fx),var(--fy)) scale(.6)}55%{fill:#9BCB1B;transform:translate(calc(var(--fx)*.8),calc(var(--fy)*.8)) scale(.7)}85%,100%{opacity:1;fill:#0E1A2B;transform:translate(0,0) scale(1)}}
+.ibond{stroke-dasharray:1;stroke-dashoffset:1;animation:bond .6s ease 1.7s forwards}@keyframes bond{to{stroke-dashoffset:0}}
+.ilbl{position:absolute;white-space:nowrap;font-size:11px;font-weight:700;letter-spacing:.1em;color:#0E1A2B;opacity:0;animation:lbl 2.1s ease .3s both}.ilbl b{color:#7FA816}
+@keyframes lbl{20%,65%{opacity:1}100%{opacity:0}}
+.iword{max-width:0;opacity:0;animation:word .8s cubic-bezier(.2,.7,.2,1) 2.3s forwards}@keyframes word{to{max-width:560px;opacity:1}}
+.ist1,.ist2{position:absolute;left:0;right:0;opacity:0}.ist1{animation:st1 1.6s ease .2s both}.ist2{animation:st2 1.4s ease 1.8s both}
+@keyframes st1{15%,80%{opacity:1}100%{opacity:0}}@keyframes st2{20%,100%{opacity:1}}
+.itab{border:1px solid transparent;transition:background .3s,border-color .3s}.itab:hover{background:rgba(255,255,255,.04)}.itab.on{background:rgba(204,242,58,.08);border-color:rgba(204,242,58,.55)}.itab.on .inum{color:#CCF23A}
+.shot{position:relative}
+/* Intro — vertical composition for phones */
+@media (max-width:760px){
+.intro > div:first-child{flex-direction:column}
+.intro > div:first-child > div:first-child{width:136px !important;height:136px !important;flex:0 0 136px !important}
+.intro .imark{width:136px;height:136px}
+.intro .ilbl{font-size:10px;letter-spacing:.08em}
+.intro .ilbl:nth-of-type(1){right:calc(50% + 10px) !important;left:auto !important;top:-46px !important}
+.intro .ilbl:nth-of-type(2){left:calc(50% + 10px) !important;right:auto !important;top:-46px !important}
+.intro .ilbl:nth-of-type(3){right:calc(50% + 10px) !important;left:auto !important;top:164px !important}
+.intro .ilbl:nth-of-type(4){left:calc(50% + 10px) !important;right:auto !important;top:164px !important}
+.intro .iword{font-size:min(13vw,56px) !important;max-width:none;max-height:0;line-height:1.1;margin-top:26px;animation-name:wordV}
+.intro .iword span:first-child{padding-left:0 !important}
+.intro > div:first-child + div{margin-top:30px !important;width:100% !important;font-size:11px !important}
+}
+@keyframes wordV{from{max-height:0;opacity:0;transform:translateY(14px)}to{max-height:120px;opacity:1;transform:none}}
+
+.hs{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;padding:0;border:0;background:transparent;cursor:help;display:flex;align-items:center;justify-content:center}
+.hsdot{width:16px;height:16px;border-radius:50%;background:#CCF23A;box-shadow:0 0 0 3px #0E1A2B;position:relative}
+.hsdot::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid #9BCB1B;animation:hsp 1.8s ease-out infinite}@keyframes hsp{from{transform:scale(.6);opacity:1}to{transform:scale(2.2);opacity:0}}
+.hslbl{position:absolute;left:34px;top:50%;transform:translate(-6px,-50%);white-space:nowrap;background:#0E1A2B;color:#CCF23A;font-size:12px;font-weight:700;letter-spacing:.06em;padding:8px 11px;border-radius:5px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:3}
+.hs:hover .hslbl,.hs:focus-visible .hslbl{opacity:1;transform:translate(0,-50%)}.hs:focus-visible{outline:3px solid #CCF23A;border-radius:50%}
+.tl{--tx:12%}.tb{opacity:.75;transition:opacity .2s}.trk:hover .tb{opacity:1}
+.tlhead{position:absolute;top:0;bottom:0;left:var(--tx);width:2px;margin-left:-1px;background:#CCF23A;pointer-events:none;transition:left .08s linear}
+.tlknob{position:absolute;top:-8px;left:-6px;width:14px;height:14px;border-radius:50%;background:#CCF23A;box-shadow:0 0 16px rgba(204,242,58,.8)}
+.kpi{transition:background .3s}.kpi:hover{background:#15253A !important}
+.bdot{fill:#FFFFFF;transform-box:view-box;transition:transform .55s cubic-bezier(.2,.7,.2,1),fill .3s}.bdot.ctr{fill:#CCF23A}
+.bmark:hover .bdot{transform:translate(var(--fx),var(--fy));fill:#CCF23A}.bbond{transition:opacity .4s}.bmark:hover .bbond{opacity:.12}
+.bstat{position:relative;height:16px}.bs1,.bs2{position:absolute;left:0;white-space:nowrap;transition:opacity .3s}.bs2{opacity:0}.bmark:hover .bs1{opacity:0}.bmark:hover .bs2{opacity:1}
+.replay{transition:background .2s,color .2s}.replay:hover{background:#CCF23A;color:#0E1A2B}
+.pan{transition:flex-grow .55s cubic-bezier(.2,.7,.2,1),box-shadow .3s}.duo:hover .pan{flex-grow:.75}.duo .pan:hover{flex-grow:1.5;box-shadow:6px 6px 0 #CCF23A}
+.pan .cta{transition:letter-spacing .3s}.pan:hover .cta{letter-spacing:.16em}
+.seg span{height:8px;border-radius:2px;background:#CCF23A}.seg span.off{background:rgba(255,255,255,.22)}
+.kc{display:flex;flex-direction:column;gap:2px;border:1px solid #E3E9F0;border-radius:6px;padding:10px 12px;transition:background .3s,border-color .3s}.pan:hover .kc{border-color:#0E1A2B}.kc:hover{background:#CCF23A}
+.kl{font-size:10px;font-weight:700;letter-spacing:.08em;color:#4A5868;white-space:nowrap}.kv{font-family:Montserrat,sans-serif;font-weight:800;font-size:28px;line-height:1.1}
+.spark{stroke-dasharray:1;stroke-dashoffset:1;animation:spark 1.8s cubic-bezier(.5,0,.2,1) .6s forwards}.spark.s2{animation-delay:.9s}@keyframes spark{to{stroke-dashoffset:0}}
+.route{transition:transform .25s,box-shadow .25s}.route:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 #CCF23A}.route .go{transition:transform .3s}.route:hover .go{transform:translateY(4px)}
+@media (max-width:760px){.duo{flex-direction:column;height:auto !important}.duo .pan{min-height:460px}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rot{--rh:1.45em;display:inline-block;height:var(--rh);overflow:hidden;vertical-align:bottom;font-weight:800}
+.rot-in{display:flex;flex-direction:column;animation:rot 8s cubic-bezier(.75,0,.25,1) infinite}
+.rot-in span{display:block;height:var(--rh);line-height:var(--rh)}
+.rot.chip{background:#CCF23A;color:#0E1A2B;padding:0 6px;border-radius:3px;min-width:8.5ch}
+.rot.lime{color:#CCF23A;min-width:6em}
+@keyframes rot{0%,20%{transform:translateY(0)}25%,45%{transform:translateY(calc(var(--rh) * -1))}50%,70%{transform:translateY(calc(var(--rh) * -2))}75%,95%{transform:translateY(calc(var(--rh) * -3))}100%{transform:translateY(calc(var(--rh) * -4))}}
+@media (prefers-reduced-motion:reduce){.rot-in{animation:none}}
+.hglow{background:radial-gradient(520px circle at var(--mx) var(--my),rgba(204,242,58,.14),transparent 65%)}
+.court3{transform:perspective(1500px) rotateX(calc(58deg + var(--ny,0)*-5deg)) rotateZ(calc(-16deg + var(--nx,0)*7deg));transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.hfloor{background-image:linear-gradient(rgba(204,242,58,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(204,242,58,.12) 1px,transparent 1px);background-size:72px 72px;transform:perspective(900px) rotateX(72deg) translateX(calc(var(--nx,0)*-50px));transform-origin:center top;-webkit-mask-image:linear-gradient(to bottom,#000,transparent 70%);mask-image:linear-gradient(to bottom,#000,transparent 70%);transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.flow{stroke-dasharray:6 8;animation:flow 1.4s linear infinite}@keyframes flow{to{stroke-dashoffset:-28}}
+.bounce{transform-box:fill-box;transform-origin:center;animation:bounce 2.2s ease-out infinite}.b2{animation-delay:1.1s}@keyframes bounce{from{opacity:1;transform:scale(.4)}to{opacity:0;transform:scale(3.2)}}
+.ring{transform-box:fill-box;transform-origin:center;animation:ring 2s ease-in-out infinite}@keyframes ring{50%{transform:scale(1.35);opacity:.4}}
+.pl{animation:p1 6s ease-in-out infinite}.p2{animation-name:p2;animation-duration:7s}.p3{animation-name:p3;animation-duration:5.5s}.p4{animation-name:p4;animation-duration:6.5s}
+@keyframes p1{50%{transform:translate(14px,10px)}}@keyframes p2{50%{transform:translate(18px,-8px)}}@keyframes p3{50%{transform:translate(-16px,12px)}}@keyframes p4{50%{transform:translate(-10px,-14px)}}
+/* ---------- Hero 3D court v2: real 20 x 10 m court at 40 px/m, metrics drawn inside it ---------- */
+@property --orb{syntax:'<angle>';inherits:true;initial-value:0deg}
+.hc-scene{position:absolute;left:67%;top:47%;width:800px;height:400px;margin:-200px 0 0 -400px;perspective:1800px;transform:scale(var(--hk,1.12));animation:hcorb 22s ease-in-out infinite alternate}
+@keyframes hcorb{from{--orb:-7deg}to{--orb:7deg}}
+.hc-court{--rz:calc(-30deg + var(--orb) + var(--nx,0)*6deg);position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(calc(60deg + var(--ny,0)*-4deg)) rotateZ(var(--rz))}
+.hc-court>*,.hc-court .hc-wall>*{position:absolute;transform-style:preserve-3d}
+.hc-floor{inset:0;box-shadow:0 0 160px 30px rgba(14,165,233,.22),0 40px 80px rgba(0,0,0,.6)}
+.hc-floor svg,.hc-flight svg{display:block;width:100%;height:100%;overflow:visible}
+.hc-glass{background:linear-gradient(to top,rgba(150,205,255,.22),rgba(150,205,255,.04) 70%);border:1px solid rgba(190,230,255,.5);box-shadow:inset 0 0 22px rgba(190,230,255,.1)}
+.hc-glass::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.12) 42%,transparent 50%)}
+.hc-mesh{background-image:repeating-linear-gradient(90deg,rgba(200,220,240,.2) 0 1px,transparent 1px 6px),repeating-linear-gradient(0deg,rgba(200,220,240,.2) 0 1px,transparent 1px 6px);border:1px solid rgba(200,220,240,.35)}
+.hc-side{transform-origin:bottom;transform:rotateX(-90deg);height:var(--h)}
+.hc-side.far{top:calc(-1 * var(--h))}.hc-side.near{top:calc(400px - var(--h))}
+.hc-side.near{opacity:.55}
+.hc-post{background:linear-gradient(90deg,#0B1524,#3A4A60,#0B1524);width:3px !important}
+.hc-wall{top:0;width:160px;height:400px}
+.hc-wall.l{left:-160px;transform-origin:right;transform:rotateY(90deg)}
+.hc-wall.r{left:800px;transform-origin:left;transform:rotateY(-90deg)}
+.hc-wall.l .hc-glass{left:40px;width:120px;height:100%}.hc-wall.l .hc-mesh{left:0;width:40px;height:100%}
+.hc-wall.r .hc-glass{left:0;width:120px;height:100%}.hc-wall.r .hc-mesh{left:120px;width:40px;height:100%}
+.hc-net{left:366px;top:0;width:34px;height:400px;transform-origin:right;transform:rotateY(90deg);background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.3) 0 1px,transparent 1px 5px),repeating-linear-gradient(0deg,rgba(255,255,255,.3) 0 1px,transparent 1px 5px);background-color:rgba(7,16,28,.4);border-left:3px solid #F2F5F8}
+.hc-flight{left:0;top:-90px;width:800px;height:240px;transform-origin:bottom;transform:rotateX(-90deg)}
+/* billboards: stand up from a floor point and turn to face the camera */
+.hc-bb{position:absolute;width:0;height:0;transform-style:preserve-3d}
+.hc-up{position:absolute;left:0;bottom:0;transform-origin:50% 100%;transform:translateX(-50%) rotateZ(calc(-1 * var(--rz))) rotateX(-90deg);display:flex;flex-direction:column;align-items:center}
+.hc-tag{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;letter-spacing:.04em;white-space:nowrap;padding:3px 7px;border-radius:4px;background:rgba(7,16,28,.82);border:1px solid currentColor}
+.hc-tag.solid{background:#CCF23A;color:#0E1A2B;border-color:#CCF23A}
+.hc-fig{filter:drop-shadow(0 0 6px currentColor)}
+.hc-trail{stroke-dasharray:7 9;animation:hcflow 1.4s linear infinite}@keyframes hcflow{to{stroke-dashoffset:-32}}
+.hc-ping{transform-box:fill-box;transform-origin:center;animation:hcping 2.4s ease-out infinite}.hc-ping.d2{animation-delay:1.2s}
+@keyframes hcping{from{transform:scale(.4);opacity:1}to{transform:scale(2.4);opacity:0}}
+@media (max-width:1100px){.hc-scene{--hk:.9;left:72%}}
+@media (max-width:760px){.hc-scene{--hk:.62;left:62%;top:78%;opacity:.75}}
+@media (prefers-reduced-motion:reduce){.hc-scene,.hc-trail,.hc-ping{animation:none}}
+.hscan{position:absolute;left:0;right:0;height:160px;background:linear-gradient(to bottom,transparent,rgba(204,242,58,.05),transparent);animation:hscan 6s linear infinite}@keyframes hscan{from{top:-160px}to{top:100%}}
+.rot.big{--rh:1.08em;height:1.08em;min-width:0}
+.d4{animation-delay:.55s}
+.pan2{background:rgba(14,26,43,.72);border:1px solid #2A3A50;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:flex-grow .55s cubic-bezier(.2,.7,.2,1),border-color .3s,box-shadow .3s}
+.duo2:hover .pan2{flex-grow:.8}.duo2 .pan2:hover{flex-grow:1.3;border-color:#CCF23A;box-shadow:0 0 50px -12px rgba(204,242,58,.5)}
+.pan2 .cta{transition:letter-spacing .3s}.pan2:hover .cta{letter-spacing:.16em}
+.kcd{display:flex;flex-direction:column;gap:2px;border:1px solid #2A3A50;border-radius:6px;padding:8px 10px;transition:background .3s}.kcd:hover{background:rgba(204,242,58,.14)}
+.kld{font-size:10px;font-weight:700;letter-spacing:.08em;color:#C9D3DF;white-space:nowrap}.kvd{font-family:Montserrat,sans-serif;font-weight:800;font-size:24px;line-height:1.1}
+.hnav a:not(:last-child){position:relative}.hnav a:not(:last-child):hover{color:#CCF23A !important}
+@media (max-width:760px){.duo2{flex-direction:column}.hh{font-size:48px !important}}
+.nl{position:relative;color:#FFFFFF;text-decoration:none;padding:6px 0}.nl::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:#CCF23A;transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.2,.7,.2,1)}.nl:hover{color:#CCF23A}.nl:hover::after{transform:scaleX(1)}
+.login{transition:border-color .2s,background .2s}.login:hover{border-color:#CCF23A;background:rgba(204,242,58,.1)}
+.appin{animation:appin .7s cubic-bezier(.2,.7,.2,1) both}@keyframes appin{from{transform:translateY(100%);opacity:.4}to{transform:none;opacity:1}}
+@media (max-width:760px){.vsteps{padding:0 !important}}
+.rot.fbig{--rh:1.15em;min-width:5.5em;vertical-align:bottom}
+.slide{z-index:1;opacity:0;transform:scale(1.04);transition:opacity .6s ease,transform .9s cubic-bezier(.2,.7,.2,1)}.slide.on{opacity:1;transform:none}
+.sdin{width:6px;background:#3A4A60;transition:width .3s,background .3s}.sdot.on .sdin{width:26px;background:#CCF23A}
+.hud,.hud *{cursor:none !important}
+.pball{position:absolute;left:0;top:0;z-index:200;width:22px;height:22px;margin:-11px 0 0 -11px;pointer-events:none;transform:translate(var(--mx),var(--my));filter:drop-shadow(0 4px 10px rgba(14,26,43,.35)) drop-shadow(0 0 10px rgba(204,242,58,.55))}
+.pball svg{display:block;transition:transform .25s cubic-bezier(.2,.7,.2,1);animation:spin 3s linear infinite}
+@keyframes spin{to{rotate:360deg}}
+.hud:has(a:hover,button:hover,input:hover) .pball svg{transform:scale(1.7)}
+.field:focus{outline:3px solid #CCF23A;outline-offset:2px}
+/* ---- Mobile adjustments (added after the Claude Design export) ---- */
+.tl,#process{touch-action:pan-y}
+@media (max-width:760px){
+  .deskonly{display:none !important}
+  .hbar{padding:16px 20px !important;flex-wrap:nowrap !important;gap:12px !important}
+  .hlogo{height:30px !important}
+  .hnav{gap:8px !important;flex-wrap:nowrap !important}
+  .hnav .nl{display:none}
+  .hnav .login,.hnav .mag{padding:9px 13px !important;font-size:14px;white-space:nowrap}
+  #top > div[style*="padding: 170px"]{padding:112px 20px 0 !important}
+  .hh{font-size:42px !important}
+  /* hero cards: image on top of the text instead of beside it */
+  .duo2{margin-top:44px !important;padding-bottom:48px !important}
+  .duo2 .pan2:first-child{flex-direction:column}
+  .duo2 .pan2:first-child > div:first-child{flex:0 0 auto !important;width:100%;height:170px !important}
+  .duo2 .pan2 [style*="white-space: nowrap"]{white-space:normal !important}
+  /* stacked rows: flex-basis was written for rows and turns into a height in a column */
+  .stack > *{flex-basis:auto !important}
+  .grid4 .mod{min-height:0 !important;padding:26px 22px !important}
+  /* Vision app story: every step readable, phone fits the screen and cycles by itself */
+  .stp{opacity:1 !important;min-height:0 !important;padding:22px 0}
+  .stp h3{font-size:34px !important}
+  .stp p{font-size:17px !important}
+  #app .stack{gap:32px !important;padding:24px 20px 64px !important}
+  .phone-wrap{align-self:center}
+  .phone-wrap > div:first-child{zoom:.8}
+  /* match insights */
+  .hslbl{display:none}
+  .stack.tlrow{flex-direction:row !important;gap:10px !important}
+  .stack.tlrow > .mono:first-child{flex:0 0 74px !important;font-size:10px !important}
+  .stack.tlrow > .tl{flex:1 1 auto !important}
+  .stack.tlrow > .tl > .mono:first-child{font-size:9px !important;letter-spacing:0}
+  /* join: phone sits under the form */
+  #join .stack{gap:40px !important;padding:72px 20px 56px !important}
+}
+
+@media (max-width:760px){.hh{font-size:52px !important}.stack{flex-direction:column !important}.grid4,.grid3{grid-template-columns:repeat(1,minmax(0,1fr)) !important}}
+</style>
+</head>
+<body>
+<div class="hud" id="root" style="position: relative; overflow: clip; background: #EEF1F4; color: #0E1A2B; font-family: Inter, system-ui, sans-serif">
+<div>
+<div class="intro" aria-hidden="true">
+<div style="display: flex; align-items: center">
+<div style="position: relative; width: 170px; height: 170px; flex: 0 0 170px">
+<svg class="imark" viewBox="0 0 48 48" width="170" height="170" style="overflow: visible">
+<path class="ibond" pathLength="1" d="M24 6 39.6 15V33L24 42 8.4 33V15Z M24 24V6 M24 24 8.4 33 M24 24 39.6 15 M8.4 15 18 31" fill="none" stroke="#0E1A2B" stroke-width="3" stroke-linecap="round"></path>
+<circle class="idot" cx="24" cy="6" r="4.6" style="--fx: -14px; --fy: -16px"></circle>
+<circle class="idot" cx="39.6" cy="15" r="4.6" style="--fx: 22px; --fy: -10px; animation-delay: .08s"></circle>
+<circle class="idot" cx="39.6" cy="33" r="4.6" style="--fx: 18px; --fy: 16px; animation-delay: .16s"></circle>
+<circle class="idot" cx="24" cy="42" r="4.6" style="--fx: -4px; --fy: 22px; animation-delay: .24s"></circle>
+<circle class="idot" cx="8.4" cy="33" r="4.6" style="--fx: -22px; --fy: 10px; animation-delay: .12s"></circle>
+<circle class="idot" cx="8.4" cy="15" r="4.6" style="--fx: -20px; --fy: -6px; animation-delay: .2s"></circle>
+<circle class="idot" cx="24" cy="24" r="5.6" style="--fx: 2px; --fy: 0px; animation-delay: .04s"></circle>
+</svg>
+<span class="ilbl mono" style="right: 150px; top: 18px">HEAD <b>0.91</b></span>
+<span class="ilbl mono" style="left: 156px; top: 18px">RACKET ARM <b>0.98</b></span>
+<span class="ilbl mono" style="right: 150px; top: 120px">BALANCE <b>0.72</b></span>
+<span class="ilbl mono" style="left: 156px; top: 120px">FOOTWORK <b>0.94</b></span>
+</div>
+<div class="iword" style="font-family: Montserrat, sans-serif; font-size: 76px; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden"><span style="padding-left: 26px; font-weight: 300">PADEL </span><span style="font-weight: 800">LABS</span><span style="color: #9BCB1B; font-weight: 900">.</span></div>
+</div>
+<div class="mono" style="position: relative; height: 18px; margin-top: 46px; font-size: 13px; font-weight: 700; letter-spacing: .16em; color: #3F6212; width: 320px; text-align: center"><span class="ist1">TRACKING 0/7 · 0.60</span><span class="ist2">POSE LOCKED · 0.95</span></div>
+</div>
+</div>
+
+<div class="pball" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="#CCF23A"></circle><path d="M3.5 6.5C8 9 8 15 3.5 17.5M20.5 6.5C16 9 16 15 20.5 17.5" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" opacity=".9"></path><circle cx="9" cy="8" r="3" fill="#FFFFFF" opacity=".25"></circle></svg></div>
+
+<header style="position: absolute; z-index: 10; top: 0; left: 0; right: 0">
+<div class="hbar" style="max-width: 1280px; margin: 0 auto; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+<a href="#top" aria-label="Padel Labs home" style="display: flex; align-items: center; text-decoration: none"><img class="hlogo" src="assets/padel-labs-logo-white.png" alt="Padel Labs" style="display: block; height: 40px; width: auto"></a>
+<nav class="hnav" aria-label="Main" style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap; font-size: 15px; font-weight: 500">
+<a class="nl" href="#modules">Modules</a>
+<a class="nl" href="#app">Vision app</a>
+<a class="nl" href="#insights">Match insights</a>
+<a class="nl" href="#process">How it works</a>
+<span style="display: flex; gap: 10px; align-items: center">
+<a class="login" href="https://vision.padellabs.tech" target="_blank" rel="noopener" style="text-decoration: none; color: #FFFFFF; border: 1px solid rgba(255,255,255,.45); padding: 11px 18px; border-radius: 6px; font-weight: 600">Log in</a>
+<a class="mag" href="#join" data-mag style="text-decoration: none; background: #CCF23A; color: #0E1A2B; padding: 12px 18px; border-radius: 6px; font-weight: 700">Get started</a>
+</span>
+</nav>
+</div>
+</header>
+
+<section id="top" style="position: relative; z-index: 2; overflow: hidden; background: #07101C; color: #FFFFFF; min-height: 980px">
+<div class="stage" aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none">
+<div class="hglow" style="position: absolute; inset: 0"></div>
+<div class="hfloor" style="position: absolute; left: -20%; right: -20%; top: 38%; height: 900px"></div>
+<div class="hc-scene">
+<div class="hc-court">
+<div class="hc-floor">
+<svg viewBox="0 0 800 400">
+<defs>
+<linearGradient id="hcturf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2F86E6"/><stop offset="1" stop-color="#1A55A8"/></linearGradient>
+<radialGradient id="hcspot" cx=".5" cy=".45" r=".65"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".18"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+<filter id="hcgrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .09 0"/></filter>
+<filter id="hcblur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+</defs>
+<rect width="800" height="400" fill="url(#hcturf)"/>
+<rect width="800" height="400" filter="url(#hcgrain)"/>
+<g fill="#FFFFFF" fill-opacity=".03"><rect x="0" width="40" height="400"/><rect x="80" width="40" height="400"/><rect x="160" width="40" height="400"/><rect x="240" width="40" height="400"/><rect x="320" width="40" height="400"/><rect x="400" width="40" height="400"/><rect x="480" width="40" height="400"/><rect x="560" width="40" height="400"/><rect x="640" width="40" height="400"/><rect x="720" width="40" height="400"/></g>
+<rect width="800" height="400" fill="url(#hcspot)"/>
+<g filter="url(#hcblur)" opacity=".5"><ellipse cx="610" cy="140" rx="90" ry="60" fill="#EBB236"/><ellipse cx="630" cy="285" rx="80" ry="55" fill="#2FAE55"/><ellipse cx="560" cy="210" rx="120" ry="80" fill="#2FAE55" opacity=".6"/></g>
+<rect x="1" y="1" width="798" height="398" fill="none" stroke="#EAF2FF" stroke-opacity=".6" stroke-width="2.5"/>
+<path d="M122 0V400M678 0V400M122 200H678" stroke="#F2F7FF" stroke-width="3" stroke-opacity=".92"/>
+<line x1="400" y1="0" x2="400" y2="400" stroke="#07101C" stroke-opacity=".5" stroke-width="6"/>
+<path d="M150 150H800" stroke="#000" stroke-opacity=".28" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/>
+<g id="hc-metrics" font-family="JetBrains Mono">
+<line id="hc-l12" stroke="#CCF23A" stroke-width="2.5" stroke-dasharray="6 6"/>
+<line id="hc-l34" stroke="#38BDF8" stroke-width="2.5" stroke-dasharray="6 6"/>
+<line id="hc-ln" stroke="#FFFFFF" stroke-opacity=".8" stroke-width="2" stroke-dasharray="3 5"/>
+<g id="hc-rings"><circle r="18" fill="#CCF23A" fill-opacity=".18" stroke="#CCF23A" stroke-width="2.5"/><circle r="18" fill="#CCF23A" fill-opacity=".18" stroke="#CCF23A" stroke-width="2.5"/><circle r="18" fill="#38BDF8" fill-opacity=".18" stroke="#38BDF8" stroke-width="2.5"/><circle r="18" fill="#38BDF8" fill-opacity=".18" stroke="#38BDF8" stroke-width="2.5"/></g>
+</g>
+<circle cx="640" cy="150" r="10" fill="none" stroke="#CCF23A" stroke-width="2.5" class="hc-ping"/>
+<circle cx="640" cy="150" r="10" fill="none" stroke="#CCF23A" stroke-width="2.5" class="hc-ping d2"/>
+<circle cx="640" cy="150" r="4" fill="#CCF23A"/>
+</svg>
+</div>
+<div class="hc-side far hc-glass" style="left:0;width:80px;--h:120px"></div><div class="hc-side far hc-glass" style="left:80px;width:80px;--h:80px"></div><div class="hc-side far hc-mesh" style="left:160px;width:480px;--h:120px"></div><div class="hc-side far hc-glass" style="left:640px;width:80px;--h:80px"></div><div class="hc-side far hc-glass" style="left:720px;width:80px;--h:120px"></div><div class="hc-side far hc-post" style="left:-1px;--h:120px"></div><div class="hc-side far hc-post" style="left:79px;--h:120px"></div><div class="hc-side far hc-post" style="left:159px;--h:120px"></div><div class="hc-side far hc-post" style="left:239px;--h:120px"></div><div class="hc-side far hc-post" style="left:319px;--h:120px"></div><div class="hc-side far hc-post" style="left:399px;--h:120px"></div><div class="hc-side far hc-post" style="left:479px;--h:120px"></div><div class="hc-side far hc-post" style="left:559px;--h:120px"></div><div class="hc-side far hc-post" style="left:639px;--h:120px"></div><div class="hc-side far hc-post" style="left:719px;--h:120px"></div><div class="hc-side far hc-post" style="left:798px;--h:120px"></div>
+<div class="hc-wall l"><div class="hc-mesh"></div><div class="hc-glass"></div></div>
+<div class="hc-wall r"><div class="hc-glass"></div><div class="hc-mesh"></div></div>
+<div class="hc-net"></div>
+<div class="hc-bb" id="hc-p1"><div class="hc-up"><span class="hc-tag" style="color:#CCF23A;margin-bottom:6px">P1 · SMASH</span><svg class="hc-fig" id="hc-fig-p1" width="56" height="84" viewBox="0 0 56 84" style="color:#CCF23A;overflow:visible"></svg></div></div><div class="hc-bb" id="hc-p2"><div class="hc-up"><span class="hc-tag" style="color:#CCF23A;margin-bottom:6px">P2 · 0.93</span><svg class="hc-fig" id="hc-fig-p2" width="56" height="84" viewBox="0 0 56 84" style="color:#CCF23A;overflow:visible"></svg></div></div><div class="hc-bb" id="hc-p3"><div class="hc-up"><span class="hc-tag" style="color:#38BDF8;margin-bottom:6px">P3 · 0.96</span><svg class="hc-fig" id="hc-fig-p3" width="56" height="84" viewBox="0 0 56 84" style="color:#38BDF8;overflow:visible"></svg></div></div><div class="hc-bb" id="hc-p4"><div class="hc-up"><span class="hc-tag" style="color:#38BDF8;margin-bottom:6px">P4 · 0.91</span><svg class="hc-fig" id="hc-fig-p4" width="56" height="84" viewBox="0 0 56 84" style="color:#38BDF8;overflow:visible"></svg></div></div>
+<div class="hc-bb" id="hc-t12"><div class="hc-up"><span class="hc-tag" style="color:#CCF23A">GAP 3.6 m</span></div></div>
+<div class="hc-bb" id="hc-t34"><div class="hc-up"><span class="hc-tag" style="color:#38BDF8">GAP 4.2 m</span></div></div>
+<div class="hc-bb" id="hc-tn"><div class="hc-up"><span class="hc-tag" style="color:#FFFFFF">NET 4.3 m</span></div></div>
+<div class="hc-bb" style="left:330px;top:150px"><div class="hc-up" style="bottom:128px"><span class="hc-tag solid">SMASH · 112 km/h</span></div></div>
+<div class="hc-flight">
+<svg viewBox="0 0 800 240">
+<path d="M610 205Q390 120 210 240" fill="none" stroke="#38BDF8" stroke-opacity=".5" stroke-width="2.5" class="hc-trail"/>
+<path d="M165 150Q420 70 640 240Q730 150 798 168Q760 182 724 240" fill="none" stroke="#CCF23A" stroke-width="3" class="hc-trail" style="filter:drop-shadow(0 0 6px rgba(204,242,58,.7))"/>
+<circle r="7" fill="#F4FF9A" stroke="#CCF23A" stroke-width="2"><animateMotion dur="3.4s" repeatCount="indefinite" path="M165 150Q420 70 640 240Q730 150 798 168Q760 182 724 240"/></circle>
+</svg>
+</div>
+<div class="hc-side near hc-glass" style="left:0;width:80px;--h:120px"></div><div class="hc-side near hc-glass" style="left:80px;width:80px;--h:80px"></div><div class="hc-side near hc-mesh" style="left:160px;width:480px;--h:120px"></div><div class="hc-side near hc-glass" style="left:640px;width:80px;--h:80px"></div><div class="hc-side near hc-glass" style="left:720px;width:80px;--h:120px"></div><div class="hc-side near hc-post" style="left:-1px;--h:120px"></div><div class="hc-side near hc-post" style="left:79px;--h:120px"></div><div class="hc-side near hc-post" style="left:159px;--h:120px"></div><div class="hc-side near hc-post" style="left:239px;--h:120px"></div><div class="hc-side near hc-post" style="left:319px;--h:120px"></div><div class="hc-side near hc-post" style="left:399px;--h:120px"></div><div class="hc-side near hc-post" style="left:479px;--h:120px"></div><div class="hc-side near hc-post" style="left:559px;--h:120px"></div><div class="hc-side near hc-post" style="left:639px;--h:120px"></div><div class="hc-side near hc-post" style="left:719px;--h:120px"></div><div class="hc-side near hc-post" style="left:798px;--h:120px"></div>
+</div>
+</div>
+<div style="position: absolute; inset: 0; background: linear-gradient(90deg, #07101C 0%, rgba(7,16,28,.92) 30%, rgba(7,16,28,.2) 62%, rgba(7,16,28,0) 100%)"></div>
+<div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(7,16,28,.9) 0%, rgba(7,16,28,0) 18%, rgba(7,16,28,0) 55%, #07101C 92%)"></div>
+<div class="hscan"></div>
+<span class="mono deskonly" style="position: absolute; right: 32px; top: 112px; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: rgba(255,255,255,.6)">3D COURT · LIVE RECONSTRUCTION</span>
+<span class="mono deskonly" style="position: absolute; right: 32px; top: 132px; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: #CCF23A">TRACKING 4/4 · BALL LOCKED</span>
+</div>
+
+<div style="position: relative; max-width: 1280px; margin: 0 auto; padding: 170px 32px 0">
+<p class="mono rise" style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .16em; color: #CCF23A">[ EVERY RALLY, MEASURED ]</p>
+<h1 class="hh rise d1" style="margin: 22px 0 0; max-width: 820px; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 86px; line-height: 1.02; letter-spacing: -0.035em">AI-powered intelligence built to<span class="sr"> improve, coach, analyze and engage</span><span class="rot lime big" aria-hidden="true" style="display: block"><span class="rot-in"><span>improve.</span><span>coach.</span><span>analyze.</span><span>engage.</span><span>improve.</span></span></span></h1>
+<p class="rise d2" style="margin: 26px 0 0; max-width: 520px; font-size: 19px; line-height: 1.6; color: #C9D3DF">From one backhand to a full pro final. Padel Labs combines computer vision and expert scouting to show what happened on court, and what to change next.</p>
+<div class="rise d3" style="margin-top: 34px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center">
+<a class="mag" href="#join" data-mag style="text-decoration: none; background: #CCF23A; color: #0E1A2B; padding: 18px 26px; border-radius: 8px; font-weight: 700; font-size: 17px; box-shadow: 0 0 40px -6px rgba(204,242,58,.6)">Get started</a>
+<a class="mono" href="#process" style="text-decoration: none; padding: 18px 10px; font-weight: 600; font-size: 15px; color: #FFFFFF">▶ HOW IT WORKS</a>
+</div>
+
+<div class="duo2 rise d4" style="margin-top: 64px; padding-bottom: 72px; display: flex; gap: 16px">
+<a class="pan2" href="#app" aria-label="Shot analysis for players: see the Vision app" style="flex: 1 1 0; min-width: 0; display: flex; gap: 18px; padding: 14px; border-radius: 14px; text-decoration: none; color: #FFFFFF">
+<div style="position: relative; flex: 0 0 180px; height: 200px; border-radius: 10px; overflow: hidden">
+<img src="assets/court.jpg" alt="" style="display: block; width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%">
+<div class="lock" style="position: absolute; left: 44%; top: 17%; width: 30%; height: 70%; border: 2px solid #CCF23A"></div>
+<div class="scan"></div>
+</div>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 4px 4px 4px 0">
+<div style="display: flex; justify-content: space-between; gap: 8px"><span class="mono" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; white-space: nowrap">01 · SHOT ANALYSIS</span><span class="mono" style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #CCF23A">PLAYERS</span></div>
+<div style="display: flex; align-items: baseline; gap: 10px"><span style="font-family: Montserrat, sans-serif; font-weight: 900; font-size: 46px; line-height: 1">7.8</span><span class="mono" style="font-size: 12px; font-weight: 700; color: #C9D3DF; white-space: nowrap">/10 · BACKHAND</span></div>
+<div class="seg" style="display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span class="off"></span><span class="off"></span></div>
+<span style="display: flex; gap: 8px; align-items: center; font-size: 14px; white-space: nowrap"><span style="flex: 0 0 18px; height: 18px; border-radius: 50%; background: #F5B83D; color: #0E1A2B; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800">!</span>Open racket too early</span>
+<span class="mono cta" style="margin-top: auto; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #CCF23A">SEE THE APP ↓</span>
+</div>
+</a>
+<a class="pan2" href="#insights" aria-label="Pro performance analysis for coaches: see Match insights" style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px; border-radius: 14px; text-decoration: none; color: #FFFFFF">
+<div style="display: flex; justify-content: space-between; gap: 8px"><span class="mono" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; white-space: nowrap">02 · PRO PERFORMANCE</span><span class="mono" style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #CCF23A">COACHES &amp; CLUBS</span></div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap"><span style="font-family: Montserrat, sans-serif; font-weight: 800; font-size: 30px; white-space: nowrap">6–7 7–5 3–6</span><span class="mono" style="font-size: 11px; font-weight: 700; color: #0E1A2B; background: #CCF23A; padding: 4px 8px; border-radius: 4px; white-space: nowrap">P1 FINAL · 216 PTS</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<div class="kcd"><span class="mono kld">SCORE</span><span class="kvd">6.6</span></div>
+<div class="kcd"><span class="mono kld">WINNERS</span><span class="kvd">32</span></div>
+<div class="kcd"><span class="mono kld">UNFORCED</span><span class="kvd">19</span></div>
+<div class="kcd"><span class="mono kld">FORCED</span><span class="kvd">16</span></div>
+</div>
+<div style="display: flex; align-items: flex-end; gap: 16px">
+<svg viewBox="0 0 300 74" preserveAspectRatio="none" aria-hidden="true" style="flex: 1; height: 44px">
+<polyline class="spark" pathLength="1" points="0,18.5 5,17.5 10,7.5 15,8.9 20,9.2 25,7.6 30,16.0 35,16.3 40,13.6 45,6.8 50,17.5 55,22.9 60,33.6 65,26.5 70,22.2 75,34.1 80,22.7 85,11.6 90,8.3 95,6.0 100,15.1 105,27.7 110,27.5 115,39.1 120,47.3 125,54.3 130,66.5 135,68.0 140,70.0 145,62.0 150,62.1 155,59.1 160,59.7 165,56.2 170,57.8 175,63.8 180,52.0 185,40.2 190,32.2 195,27.6 200,32.7 205,40.0 210,45.8 215,57.1 220,51.0 225,54.0 230,45.9 235,49.3 240,38.4 245,30.3 250,43.3 255,51.0 260,41.4 265,42.7 270,31.2 275,34.3 280,45.5 285,42.8 290,36.4 295,42.7 300,53.5" fill="none" stroke="rgba(204,242,58,.45)" stroke-width="2" vector-effect="non-scaling-stroke"></polyline>
+<polyline class="spark s2" pathLength="1" points="0,46.4 5,52.5 10,53.7 15,58.9 20,65.6 25,66.7 30,59.2 35,53.6 40,48.7 45,52.8 50,51.7 55,54.8 60,59.8 65,65.8 70,70.0 75,62.4 80,56.3 85,50.7 90,45.2 95,49.8 100,52.4 105,49.7 110,45.4 115,38.9 120,32.1 125,38.4 130,36.1 135,32.7 140,32.1 145,36.9 150,36.8 155,43.1 160,35.4 165,28.8 170,27.4 175,30.2 180,22.9 185,21.2 190,14.3 195,7.9 200,7.3 205,8.2 210,6.0 215,6.6 220,11.7 225,14.4 230,8.7 235,15.8 240,22.8 245,20.2 250,23.3 255,22.2 260,22.1 265,24.2 270,15.4 275,19.9 280,20.9 285,25.3 290,22.5 295,25.7 300,27.6" fill="none" stroke="#FF8A80" stroke-width="2.5" vector-effect="non-scaling-stroke"></polyline>
+</svg>
+<span class="mono cta" style="font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #CCF23A; white-space: nowrap">SEE MATCH INSIGHTS ↓</span>
+</div>
+</a>
+</div>
+</div>
+</section>
+
+
+
+
+<section id="modules" style="position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; padding: 110px 32px 90px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap">
+<h2 style="margin: 0; max-width: 680px; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 54px; line-height: 1.02; letter-spacing: -0.03em">Four modules. One sharper game.</h2>
+<p class="mono" style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .08em; color: #4A5868">04 MODULES · ALL FROM ONE UPLOAD</p>
+</div>
+<div class="grid4" style="margin-top: 48px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px">
+<div class="mod" style="border: 1px solid #CCD4DD; border-radius: 6px; padding: 36px 28px; min-height: 300px; display: flex; flex-direction: column; gap: 18px">
+<span class="idx mono" style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 6px 10px; border: 1px solid #0E1A2B; border-radius: 4px">M/01</span>
+<h3 style="margin: 0; font-family: Montserrat, sans-serif; font-size: 24px; font-weight: 800">Technique</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #3B4A5C">Stroke-by-stroke scoring with the changes that matter most.</p>
+</div>
+<div class="mod" style="border: 1px solid #CCD4DD; border-radius: 6px; padding: 36px 28px; min-height: 300px; display: flex; flex-direction: column; gap: 18px">
+<span class="idx mono" style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 6px 10px; border: 1px solid #0E1A2B; border-radius: 4px">M/02</span>
+<h3 style="margin: 0; font-family: Montserrat, sans-serif; font-size: 24px; font-weight: 800">Match review</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #3B4A5C">Key moments surfaced automatically, ready to rewatch.</p>
+</div>
+<div class="mod" style="border: 1px solid #CCD4DD; border-radius: 6px; padding: 36px 28px; min-height: 300px; display: flex; flex-direction: column; gap: 18px">
+<span class="idx mono" style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 6px 10px; border: 1px solid #0E1A2B; border-radius: 4px">M/03</span>
+<h3 style="margin: 0; font-family: Montserrat, sans-serif; font-size: 24px; font-weight: 800">Metrics</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #3B4A5C">Progress tracked across sessions, not guessed from memory.</p>
+</div>
+<div class="mod" style="border: 1px solid #CCD4DD; border-radius: 6px; padding: 36px 28px; min-height: 300px; display: flex; flex-direction: column; gap: 18px">
+<span class="idx mono" style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 6px 10px; border: 1px solid #0E1A2B; border-radius: 4px">M/04</span>
+<h3 style="margin: 0; font-family: Montserrat, sans-serif; font-size: 24px; font-weight: 800">Drills</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #3B4A5C">Ask Vision and get practice aimed at your weak spots.</p>
+</div>
+</div>
+</section>
+
+<section id="app" style="position: relative; z-index: 2; background: #FFFFFF; border-top: 1px solid #CCD4DD; border-bottom: 1px solid #CCD4DD">
+<div style="max-width: 1280px; margin: 0 auto; padding: 100px 32px 0; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap">
+<div>
+<p class="mono" style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .14em; color: #3F6212">[ THE APP ]</p>
+<h2 style="margin: 16px 0 0; max-width: 640px; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 54px; line-height: 1.02; letter-spacing: -0.03em">Your analyst, in your pocket.</h2>
+</div>
+<p class="mono deskonly" style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .08em; color: #4A5868">SCROLL TO WALK THROUGH VISION ↓</p>
+</div>
+<div class="stack" style="max-width: 1140px; margin: 0 auto; padding: 48px 32px 80px; display: flex; gap: 72px; align-items: flex-start; justify-content: center">
+<div class="vsteps" style="flex: 1 1 480px; min-width: 0; max-width: 560px; display: flex; flex-direction: column; padding: 190px 0 220px">
+
+<div class="stp on" data-step="0" style="min-height: 420px; display: flex; flex-direction: column; justify-content: center; gap: 16px">
+<span class="pill mono" style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 7px 12px; border: 1.5px solid #0E1A2B; border-radius: 4px; letter-spacing: .08em">01 · OPEN VISION</span>
+<h3 style="margin: 0; max-width: 520px; font-family: Montserrat, sans-serif; font-size: 44px; line-height: 1.05; font-weight: 900; letter-spacing: -0.025em">Ask, don’t search.</h3>
+<p style="margin: 0; max-width: 460px; font-size: 19px; line-height: 1.6; color: #3B4A5C">Start from a question: analyze my technique, review my match, or give me a drill.</p>
+</div>
+
+<div class="stp" data-step="1" style="min-height: 420px; display: flex; flex-direction: column; justify-content: center; gap: 16px">
+<span class="pill mono" style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 7px 12px; border: 1.5px solid #0E1A2B; border-radius: 4px; letter-spacing: .08em">02 · UPLOAD</span>
+<h3 style="margin: 0; max-width: 520px; font-family: Montserrat, sans-serif; font-size: 44px; line-height: 1.05; font-weight: 900; letter-spacing: -0.025em">Vision watches every frame.</h3>
+<p style="margin: 0; max-width: 460px; font-size: 19px; line-height: 1.6; color: #3B4A5C">Players, racket and ball are tracked automatically while you grab your water.</p>
+</div>
+
+<div class="stp" data-step="2" style="min-height: 420px; display: flex; flex-direction: column; justify-content: center; gap: 16px">
+<span class="pill mono" style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 7px 12px; border: 1.5px solid #0E1A2B; border-radius: 4px; letter-spacing: .08em">03 · ANALYZE</span>
+<h3 style="margin: 0; max-width: 520px; font-family: Montserrat, sans-serif; font-size: 44px; line-height: 1.05; font-weight: 900; letter-spacing: -0.025em">A score, and what’s behind it.</h3>
+<p style="margin: 0; max-width: 460px; font-size: 19px; line-height: 1.6; color: #3B4A5C">Every stroke rated, with the few takeaways that matter most.</p>
+</div>
+
+<div class="stp" data-step="3" style="min-height: 420px; display: flex; flex-direction: column; justify-content: center; gap: 16px">
+<span class="pill mono" style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 7px 12px; border: 1.5px solid #0E1A2B; border-radius: 4px; letter-spacing: .08em">04 · REVIEW</span>
+<h3 style="margin: 0; max-width: 520px; font-family: Montserrat, sans-serif; font-size: 44px; line-height: 1.05; font-weight: 900; letter-spacing: -0.025em">Skip to the moments that matter.</h3>
+<p style="margin: 0; max-width: 460px; font-size: 19px; line-height: 1.6; color: #3B4A5C">Key moments pulled from the whole match, ready to rewatch.</p>
+</div>
+
+<div class="stp" data-step="4" style="min-height: 420px; display: flex; flex-direction: column; justify-content: center; gap: 16px">
+<span class="pill mono" style="align-self: flex-start; font-size: 13px; font-weight: 700; padding: 7px 12px; border: 1.5px solid #0E1A2B; border-radius: 4px; letter-spacing: .08em">05 · IMPROVE</span>
+<h3 style="margin: 0; max-width: 520px; font-family: Montserrat, sans-serif; font-size: 44px; line-height: 1.05; font-weight: 900; letter-spacing: -0.025em">Practice with a purpose.</h3>
+<p style="margin: 0; max-width: 460px; font-size: 19px; line-height: 1.6; color: #3B4A5C">A drill built for exactly what’s holding you back.</p>
+</div>
+
+</div>
+<div class="phone-wrap" style="flex: 0 0 360px; position: sticky; top: 40px; padding-top: 0; display: flex; flex-direction: column; align-items: center; gap: 22px">
+<div style="position: relative; width: 360px; height: 740px; box-sizing: border-box; padding: 12px; border-radius: 58px; background: #0E1A2B; box-shadow: 0 0 0 2px #2A3A50 inset, 0 60px 90px -40px rgba(14,26,43,.55)">
+<div style="position: relative; width: 336px; height: 716px; border-radius: 46px; overflow: hidden; background: #FFFFFF">
+<div aria-hidden="true" style="position: absolute; z-index: 5; left: 50%; top: 12px; width: 112px; height: 32px; margin-left: -56px; border-radius: 20px; background: #05090F"></div>
+<div class="strip" style="transform: translateY(0px)">
+
+<div style="height: 716px; box-sizing: border-box; padding: 70px 20px 22px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="text-align: center"><span style="font-family: Montserrat, sans-serif; font-weight: 900; font-size: 24px; letter-spacing: -0.02em">VISION<span style="color: #9BCB1B">.</span></span><br><span class="mono" style="font-size: 10px; font-weight: 600; letter-spacing: .12em; color: #4A5868">BY PADEL LABS</span></div>
+<p style="margin: 18px 0 4px; font-family: Montserrat, sans-serif; font-weight: 800; font-size: 27px; line-height: 1.12; letter-spacing: -0.02em">How can I help you analyze your game?</p>
+<span style="align-self: flex-start; border: 1px solid #DDE4EC; border-radius: 999px; padding: 12px 16px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 14px -8px rgba(14,26,43,.3)">Analyze my technique</span>
+<span style="align-self: flex-start; border: 1px solid #DDE4EC; border-radius: 999px; padding: 12px 16px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 14px -8px rgba(14,26,43,.3)">Review my match</span>
+<span style="align-self: flex-start; border: 1px solid #DDE4EC; border-radius: 999px; padding: 12px 16px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 14px -8px rgba(14,26,43,.3)">Give me a drill</span>
+<div style="margin-top: auto; display: flex; gap: 12px; align-items: center; border: 1px solid #DDE4EC; border-radius: 16px; padding: 10px">
+<img src="assets/court.jpg" alt="" style="width: 92px; height: 64px; object-fit: cover; object-position: 60% 50%; border-radius: 10px">
+<span style="font-size: 14px; font-weight: 600; line-height: 1.35">Can you analyze my backhand?</span>
+</div>
+<div style="display: flex; gap: 10px; align-items: center">
+<span style="flex: 1; border: 1px solid #DDE4EC; border-radius: 999px; padding: 15px 16px; font-size: 14px; color: #4A5868">Ask Vision…</span>
+<span style="width: 50px; height: 50px; border-radius: 50%; background: #CCF23A; display: inline-flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E1A2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 10l5-3v10l-5-3z"></path><rect x="3" y="6" width="12" height="12" rx="2"></rect></svg></span>
+</div>
+</div>
+
+<div style="height: 716px; box-sizing: border-box; padding: 64px 20px 22px; display: flex; flex-direction: column; gap: 14px; background: #0E1A2B; color: #FFFFFF">
+<p class="mono" style="margin: 8px 0 0; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: #CCF23A">ANALYZING · BACKHAND.MP4</p>
+<div style="position: relative; border-radius: 14px; overflow: hidden">
+<img src="assets/court.jpg" alt="" style="display: block; width: 100%; height: 240px; object-fit: cover; object-position: 62% 50%">
+<div class="scan"></div>
+<div class="lock" style="position: absolute; left: 46%; top: 14%; width: 26%; height: 74%; border: 2px solid #CCF23A"></div>
+<span class="mono" style="position: absolute; left: 46%; top: calc(14% - 20px); background: #CCF23A; color: #0E1A2B; font-size: 9px; font-weight: 700; padding: 3px 6px">ID_01</span>
+</div>
+<div class="mono" style="display: flex; flex-direction: column; gap: 10px; font-size: 12px; font-weight: 600">
+<div style="display: flex; justify-content: space-between"><span>PLAYER POSE</span><span style="color: #CCF23A">DONE</span></div>
+<div style="display: flex; justify-content: space-between"><span>RACKET PATH</span><span style="color: #CCF23A">DONE</span></div>
+<div style="display: flex; justify-content: space-between"><span>BALL TRACKING</span><span class="blink" style="color: #F5B83D">RUNNING</span></div>
+</div>
+<div style="height: 6px; border-radius: 3px; background: #22324A; overflow: hidden"><div class="load" style="height: 100%; background: #CCF23A"></div></div>
+<p class="mono" style="margin: auto 0 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #C9D3DF; text-align: center">TRACKING 7/7 · 0.82</p>
+</div>
+
+<div style="height: 716px; box-sizing: border-box; padding: 56px 16px 22px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<img src="assets/court.jpg" alt="" style="display: block; width: 100%; height: 200px; object-fit: cover; object-position: 62% 50%; border-radius: 16px; margin-top: 6px">
+<div style="display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: #F2F5F8; font-size: 13px; font-weight: 600"><span style="flex: 1; text-align: center; background: #CCF23A; border-radius: 999px; padding: 9px 0">Analysis</span><span style="flex: 1; text-align: center; padding: 9px 0">Key moments</span><span style="flex: 1; text-align: center; padding: 9px 0">Metrics</span></div>
+<div style="border: 1px solid #E3E9F0; border-radius: 16px; padding: 14px 16px"><span style="font-size: 13px; color: #4A5868">Overall score</span><div style="display: flex; align-items: center; gap: 14px"><span style="font-family: Montserrat, sans-serif; font-weight: 800; font-size: 40px">7.8<span style="font-size: 20px; color: #4A5868">/10</span></span><span style="flex: 1; height: 10px; border-radius: 5px; background: #E3E9F0; overflow: hidden"><span class="fill" style="display: block; width: 78%; height: 100%; background: #CCF23A"></span></span></div></div>
+<p style="margin: 2px 0 0; font-family: Montserrat, sans-serif; font-weight: 800; font-size: 17px">Key takeaways</p>
+<div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px">
+<div style="display: flex; gap: 10px; align-items: center; border: 1px solid #E3E9F0; border-radius: 12px; padding: 11px 12px"><span style="width: 22px; height: 22px; border-radius: 50%; background: #9BCB1B; color: #0E1A2B; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px">✓</span>Good preparation and balance</div>
+<div style="display: flex; gap: 10px; align-items: center; border: 1px solid #E3E9F0; border-radius: 12px; padding: 11px 12px"><span style="width: 22px; height: 22px; border-radius: 50%; background: #F5B83D; color: #0E1A2B; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px">!</span>Open racket too early</div>
+<div style="display: flex; gap: 10px; align-items: center; border: 1px solid #E3E9F0; border-radius: 12px; padding: 11px 12px"><span style="width: 22px; height: 22px; border-radius: 50%; background: #F5B83D; color: #0E1A2B; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px">!</span>Improve point of contact height</div>
+</div>
+</div>
+
+<div style="height: 716px; box-sizing: border-box; padding: 64px 16px 22px; display: flex; flex-direction: column; gap: 12px; background: #FFFFFF">
+<div style="display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: #F2F5F8; font-size: 13px; font-weight: 600; margin-top: 6px"><span style="flex: 1; text-align: center; padding: 9px 0">Analysis</span><span style="flex: 1; text-align: center; background: #CCF23A; border-radius: 999px; padding: 9px 0">Key moments</span><span style="flex: 1; text-align: center; padding: 9px 0">Metrics</span></div>
+<div style="position: relative; height: 40px; border-radius: 10px; background: #F2F5F8; margin: 4px 0"><span style="position: absolute; left: 14%; top: 8px; bottom: 8px; width: 4px; border-radius: 2px; background: #9BCB1B"></span><span style="position: absolute; left: 38%; top: 8px; bottom: 8px; width: 4px; border-radius: 2px; background: #0EA5E9"></span><span style="position: absolute; left: 61%; top: 8px; bottom: 8px; width: 4px; border-radius: 2px; background: #F5B83D"></span><span style="position: absolute; left: 84%; top: 8px; bottom: 8px; width: 4px; border-radius: 2px; background: #9BCB1B"></span></div>
+<div style="display: flex; gap: 12px; align-items: center; border: 1px solid #E3E9F0; border-radius: 14px; padding: 8px"><img src="assets/court.jpg" alt="" style="width: 84px; height: 60px; object-fit: cover; object-position: 30% 60%; border-radius: 8px"><span style="flex: 1; font-size: 13px; font-weight: 600">Smash at the net</span><span class="mono" style="font-size: 11px; color: #4A5868">[TC]</span></div>
+<div style="display: flex; gap: 12px; align-items: center; border: 1px solid #E3E9F0; border-radius: 14px; padding: 8px"><img src="assets/court.jpg" alt="" style="width: 84px; height: 60px; object-fit: cover; object-position: 62% 40%; border-radius: 8px"><span style="flex: 1; font-size: 13px; font-weight: 600">Defensive lob</span><span class="mono" style="font-size: 11px; color: #4A5868">[TC]</span></div>
+<div style="display: flex; gap: 12px; align-items: center; border: 1px solid #E3E9F0; border-radius: 14px; padding: 8px"><img src="assets/court.jpg" alt="" style="width: 84px; height: 60px; object-fit: cover; object-position: 80% 80%; border-radius: 8px"><span style="flex: 1; font-size: 13px; font-weight: 600">Late volley</span><span class="mono" style="font-size: 11px; color: #4A5868">[TC]</span></div>
+<div style="display: flex; gap: 12px; align-items: center; border: 1px solid #E3E9F0; border-radius: 14px; padding: 8px"><img src="assets/court.jpg" alt="" style="width: 84px; height: 60px; object-fit: cover; object-position: 50% 30%; border-radius: 8px"><span style="flex: 1; font-size: 13px; font-weight: 600">Long rally won</span><span class="mono" style="font-size: 11px; color: #4A5868">[TC]</span></div>
+</div>
+
+<div style="height: 716px; box-sizing: border-box; padding: 64px 18px 22px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="text-align: center; margin-top: 6px"><span style="font-family: Montserrat, sans-serif; font-weight: 900; font-size: 20px">VISION<span style="color: #9BCB1B">.</span></span></div>
+<div style="align-self: flex-end; max-width: 82%; background: #0E1A2B; color: #FFFFFF; border-radius: 18px 18px 4px 18px; padding: 12px 14px; font-size: 14px; line-height: 1.45">Give me a drill for my backhand</div>
+<div style="max-width: 90%; background: #F2F5F8; border-radius: 18px 18px 18px 4px; padding: 12px 14px; font-size: 14px; line-height: 1.5">Your racket opens too early. This one keeps the face closed until contact.</div>
+<div style="border: 1.5px solid #0E1A2B; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<span class="mono" style="font-size: 10px; font-weight: 700; letter-spacing: .12em; color: #3F6212">DRILL · BACKHAND</span>
+<span style="font-family: Montserrat, sans-serif; font-weight: 800; font-size: 19px; line-height: 1.2">Closed-face wall drill</span>
+<span class="mono" style="font-size: 12px; color: #4A5868">3 SETS × 10 REPS</span>
+<span style="margin-top: 4px; text-align: center; background: #CCF23A; border-radius: 999px; padding: 12px; font-size: 14px; font-weight: 700">Start drill</span>
+</div>
+<div style="margin-top: auto; display: flex; gap: 10px; align-items: center">
+<span style="flex: 1; border: 1px solid #DDE4EC; border-radius: 999px; padding: 15px 16px; font-size: 14px; color: #4A5868">Ask Vision…</span>
+<span style="width: 50px; height: 50px; border-radius: 50%; background: #CCF23A"></span>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+
+<button type="button" class="dot on" data-step-go="0" aria-label="Show step 1: open vision" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0"><span class="dotin" style="display: block; height: 8px; border-radius: 4px"></span></button>
+
+<button type="button" class="dot" data-step-go="1" aria-label="Show step 2: upload" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0"><span class="dotin" style="display: block; height: 8px; border-radius: 4px"></span></button>
+
+<button type="button" class="dot" data-step-go="2" aria-label="Show step 3: analyze" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0"><span class="dotin" style="display: block; height: 8px; border-radius: 4px"></span></button>
+
+<button type="button" class="dot" data-step-go="3" aria-label="Show step 4: review" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0"><span class="dotin" style="display: block; height: 8px; border-radius: 4px"></span></button>
+
+<button type="button" class="dot" data-step-go="4" aria-label="Show step 5: improve" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0"><span class="dotin" style="display: block; height: 8px; border-radius: 4px"></span></button>
+
+</div>
+</div>
+</div>
+</section>
+
+<section id="insights" style="position: relative; z-index: 2; background: #0E1A2B; color: #FFFFFF">
+<div style="max-width: 1280px; margin: 0 auto; padding: 110px 32px 100px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap">
+<div style="flex: 1 1 640px; min-width: 0">
+<p class="mono" style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .14em; color: #CCF23A">[ MATCH INSIGHTS · FOR COACHES &amp; ANALYSTS ]</p>
+<h2 style="margin: 16px 0 0; max-width: 760px; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 58px; line-height: 1.02; letter-spacing: -0.03em">Pro-level scouting, point by point.</h2>
+<p style="margin: 22px 0 0; max-width: 640px; font-size: 19px; line-height: 1.6; color: #C9D3DF">Computer vision and expert manual scouting, combined. Every point of a match becomes stats, momentum and a video review you can search, filter and share with your team.</p>
+</div>
+<div class="mono" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: #22324A; border: 1px solid #22324A; border-radius: 8px; overflow: hidden; flex: 0 1 420px">
+<div class="kpi" style="background: #0E1A2B; padding: 18px 20px"><div style="font-family: Montserrat, sans-serif; font-weight: 900; font-size: 34px">216</div><div style="font-size: 11px; font-weight: 600; letter-spacing: .1em; color: #C9D3DF">OBSERVED POINTS</div></div>
+<div class="kpi" style="background: #0E1A2B; padding: 18px 20px"><div style="font-family: Montserrat, sans-serif; font-weight: 900; font-size: 34px">1,634</div><div style="font-size: 11px; font-weight: 600; letter-spacing: .1em; color: #C9D3DF">SHOT TAPS</div></div>
+<div class="kpi" style="background: #0E1A2B; padding: 18px 20px"><div style="font-family: Montserrat, sans-serif; font-weight: 900; font-size: 34px">212</div><div style="font-size: 11px; font-weight: 600; letter-spacing: .1em; color: #C9D3DF">RALLIES</div></div>
+<div class="kpi" style="background: #0E1A2B; padding: 18px 20px"><div style="font-family: Montserrat, sans-serif; font-weight: 900; font-size: 34px">4/4</div><div style="font-size: 11px; font-weight: 600; letter-spacing: .1em; color: #C9D3DF">PLAYERS TRACKED</div></div>
+</div>
+</div>
+<p class="mono" style="margin: 14px 0 0; font-size: 11px; letter-spacing: .1em; color: #8A99AC; text-align: right">EXAMPLE · PREMIER PADEL P1 FINAL</p>
+
+<div class="stack" style="margin-top: 48px; display: flex; gap: 32px; align-items: flex-start">
+<div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+
+<button type="button" class="itab on" data-itab="0" style="text-align: left; cursor: pointer; background: transparent; color: #FFFFFF; border-radius: 10px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; font-family: Inter, sans-serif">
+<span class="mono inum" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; color: #8A99AC">01 · PERFORMANCE</span>
+<span style="font-family: Montserrat, sans-serif; font-weight: 800; font-size: 21px">Player performance</span>
+<span style="font-size: 15px; line-height: 1.55; color: #C9D3DF">Key-point impact, winners, forced and unforced errors per player, with every stat linked to the chart.</span>
+</button>
+
+<button type="button" class="itab" data-itab="1" style="text-align: left; cursor: pointer; background: transparent; color: #FFFFFF; border-radius: 10px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; font-family: Inter, sans-serif">
+<span class="mono inum" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; color: #8A99AC">02 · VIDEO</span>
+<span style="font-family: Montserrat, sans-serif; font-weight: 800; font-size: 21px">Video review</span>
+<span style="font-size: 15px; line-height: 1.55; color: #C9D3DF">Broadcast and uploaded video with tracked positions, a synced 3D court and filters by player and outcome.</span>
+</button>
+
+<button type="button" class="itab" data-itab="2" style="text-align: left; cursor: pointer; background: transparent; color: #FFFFFF; border-radius: 10px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; font-family: Inter, sans-serif">
+<span class="mono inum" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; color: #8A99AC">03 · MOMENTUM</span>
+<span style="font-family: Montserrat, sans-serif; font-weight: 800; font-size: 21px">Momentum &amp; replay</span>
+<span style="font-size: 15px; line-height: 1.55; color: #C9D3DF">See how every game swung, set by set, and replay any point with its full context.</span>
+</button>
+
+<button type="button" class="itab" data-itab="3" style="text-align: left; cursor: pointer; background: transparent; color: #FFFFFF; border-radius: 10px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px; font-family: Inter, sans-serif">
+<span class="mono inum" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; color: #8A99AC">04 · SHOTS</span>
+<span style="font-family: Montserrat, sans-serif; font-weight: 800; font-size: 21px">Score &amp; shot direction</span>
+<span style="font-size: 15px; line-height: 1.55; color: #C9D3DF">Official score next to scouted data, plus cross-court and down-the-line patterns for each player.</span>
+</button>
+
+</div>
+<div style="flex: 3 1 760px; min-width: 0; border-radius: 14px; overflow: hidden; background: #F4F6F0; box-shadow: 0 0 0 1px #2A3A50, 0 60px 100px -50px rgba(0,0,0,.8)">
+<div style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; background: #1A1F24">
+<span style="display: flex; gap: 7px"><span style="width: 11px; height: 11px; border-radius: 50%; background: #3A4450"></span><span style="width: 11px; height: 11px; border-radius: 50%; background: #3A4450"></span><span style="width: 11px; height: 11px; border-radius: 50%; background: #3A4450"></span></span>
+<span class="mono" style="flex: 1; font-size: 12px; font-weight: 600; letter-spacing: .06em; color: #C9D3DF">MATCH INSIGHTS / <span id="crumb">PLAYER PERFORMANCE</span></span>
+<span class="mono" style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #0E1A2B; background: #CCF23A; padding: 4px 8px; border-radius: 4px">SCOUTED</span>
+</div>
+<div data-if="i0">
+<div class="shot fade"><img src="assets/insights-performance.jpg" alt="Player performance view: key-point impact, winners and errors, cumulative impact chart and shot breakdown donut" style="display: block; width: 100%; height: auto">
+<button type="button" class="hs" aria-label="Per-player KPIs, each linked to the chart" style="left: 55%; top: 17%"><span class="hsdot"></span><span class="hslbl mono">Per-player KPIs, each linked to the chart</span></button><button type="button" class="hs" aria-label="Cumulative weighted impact, point 1 to 216" style="left: 22%; top: 70%"><span class="hsdot"></span><span class="hslbl mono">Cumulative weighted impact, point 1 to 216</span></button><button type="button" class="hs" aria-label="How points ended, by shot type" style="left: 77%; top: 63%"><span class="hsdot"></span><span class="hslbl mono">How points ended, by shot type</span></button>
+</div>
+</div>
+<div data-if="i1" hidden>
+<div class="shot fade"><img src="assets/insights-video-review.jpg" alt="Video review: broadcast feed with tracked players, synced 3D court, filters and match timeline" style="display: block; width: 100%; height: auto">
+<button type="button" class="hs" aria-label="Players tracked on the broadcast feed" style="left: 20%; top: 28%"><span class="hsdot"></span><span class="hslbl mono">Players tracked on the broadcast feed</span></button><button type="button" class="hs" aria-label="Synced 3D court reconstruction" style="left: 60%; top: 30%"><span class="hsdot"></span><span class="hslbl mono">Synced 3D court reconstruction</span></button><button type="button" class="hs" aria-label="Filter by player and outcome" style="left: 87%; top: 30%"><span class="hsdot"></span><span class="hslbl mono">Filter by player and outcome</span></button><button type="button" class="hs" aria-label="Winners and errors on the timeline" style="left: 40%; top: 83%"><span class="hsdot"></span><span class="hslbl mono">Winners and errors on the timeline</span></button>
+</div>
+</div>
+<div data-if="i2" hidden>
+<div class="shot fade"><img src="assets/insights-momentum.jpg" alt="Match momentum by set with point-by-point replay, and a strip of matching rallies" style="display: block; width: 100%; height: auto">
+<button type="button" class="hs" aria-label="Momentum per game, set by set" style="left: 19%; top: 28%"><span class="hsdot"></span><span class="hslbl mono">Momentum per game, set by set</span></button><button type="button" class="hs" aria-label="Point-by-point score replay" style="left: 74%; top: 30%"><span class="hsdot"></span><span class="hslbl mono">Point-by-point score replay</span></button><button type="button" class="hs" aria-label="Jump to any matching rally" style="left: 40%; top: 76%"><span class="hsdot"></span><span class="hslbl mono">Jump to any matching rally</span></button>
+</div>
+</div>
+<div data-if="i3" hidden>
+<div class="shot fade"><img src="assets/insights-shots.jpg" alt="Match header with the official score and a shot direction table per player" style="display: block; width: 100%; height: auto">
+<button type="button" class="hs" aria-label="Official score, synced with scouting" style="left: 50%; top: 20%"><span class="hsdot"></span><span class="hslbl mono">Official score, synced with scouting</span></button><button type="button" class="hs" aria-label="Pairs and player profiles" style="left: 12%; top: 14%"><span class="hsdot"></span><span class="hslbl mono">Pairs and player profiles</span></button><button type="button" class="hs" aria-label="Shot direction inferred from positions" style="left: 55%; top: 80%"><span class="hsdot"></span><span class="hslbl mono">Shot direction inferred from positions</span></button>
+</div>
+</div>
+</div>
+</div>
+
+<div style="margin-top: 72px; background: #0A1422; border: 1px solid #22324A; border-radius: 14px; padding: 28px 28px 24px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap">
+<span style="font-family: Montserrat, sans-serif; font-weight: 800; font-size: 20px">Match timeline</span>
+<span class="mono" style="font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #CCF23A"><span id="tlread">MOVE ACROSS TO SCRUB</span></span>
+</div>
+<div class="stack tlrow" style="margin-top: 20px; display: flex; gap: 16px">
+<div class="mono" style="flex: 0 0 120px; display: flex; flex-direction: column; font-size: 12px; font-weight: 600; color: #C9D3DF">
+<span style="height: 28px; display: flex; align-items: center">SETS</span>
+<span style="height: 40px; display: flex; align-items: center">ACTIVE PLAY</span>
+<span style="height: 40px; display: flex; align-items: center">WINNERS · 94</span>
+<span style="height: 40px; display: flex; align-items: center">UNFORCED · 73</span>
+<span style="height: 40px; display: flex; align-items: center">OTHER · 46</span>
+</div>
+<div class="tl" style="position: relative; flex: 1 1 600px; min-width: 0; cursor: ew-resize">
+<div class="mono" style="height: 28px; display: grid; grid-template-columns: 38fr 34fr 28fr; gap: 4px; font-size: 11px; font-weight: 700">
+<span style="background: #1F3A1A; color: #CCF23A; display: flex; align-items: center; justify-content: center; border-radius: 4px">SET 1 · 6–7</span>
+<span style="background: #1F3A1A; color: #CCF23A; display: flex; align-items: center; justify-content: center; border-radius: 4px">SET 2 · 7–5</span>
+<span style="background: #1F3A1A; color: #CCF23A; display: flex; align-items: center; justify-content: center; border-radius: 4px">SET 3 · 3–6</span>
+</div>
+
+<div class="trk" style="position: relative; height: 40px; border-bottom: 1px solid #16233A">
+<span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 0.00%; width: 0.76%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 1.06%; width: 0.44%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 2.19%; width: 0.59%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 2.88%; width: 0.69%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 4.01%; width: 0.59%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 4.87%; width: 0.64%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 5.84%; width: 0.46%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 6.50%; width: 0.67%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 7.58%; width: 0.37%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 8.47%; width: 0.56%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 9.50%; width: 0.71%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 9.97%; width: 0.58%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 11.30%; width: 0.66%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 12.05%; width: 0.61%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 13.09%; width: 0.76%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 13.70%; width: 0.50%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 14.85%; width: 0.50%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 15.38%; width: 0.48%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 16.43%; width: 0.48%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 17.61%; width: 0.60%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 18.39%; width: 0.75%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 18.93%; width: 0.47%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 20.10%; width: 0.58%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 20.93%; width: 0.44%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 22.09%; width: 0.37%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 22.70%; width: 0.50%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 23.76%; width: 0.77%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 24.58%; width: 0.42%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 25.42%; width: 0.48%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 26.30%; width: 0.54%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 27.18%; width: 0.59%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 28.23%; width: 0.45%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 29.29%; width: 0.56%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 30.17%; width: 0.64%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 30.94%; width: 0.58%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 31.77%; width: 0.66%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 32.91%; width: 0.53%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 33.68%; width: 0.46%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 34.52%; width: 0.51%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 35.28%; width: 0.53%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 36.43%; width: 0.74%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 36.96%; width: 0.72%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 37.84%; width: 0.53%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 38.78%; width: 0.39%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 40.14%; width: 0.45%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 40.84%; width: 0.41%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 41.65%; width: 0.62%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 42.37%; width: 0.76%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 43.68%; width: 0.75%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 44.58%; width: 0.76%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 45.41%; width: 0.47%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 45.91%; width: 0.46%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 46.84%; width: 0.35%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 48.03%; width: 0.45%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 49.00%; width: 0.57%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 49.87%; width: 0.46%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 50.88%; width: 0.46%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 51.50%; width: 0.75%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 52.26%; width: 0.57%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 53.10%; width: 0.76%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 54.34%; width: 0.76%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 54.91%; width: 0.76%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 55.90%; width: 0.79%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 57.01%; width: 0.66%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 57.74%; width: 0.45%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 58.61%; width: 0.60%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 59.43%; width: 0.70%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 60.68%; width: 0.67%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 61.47%; width: 0.36%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 62.16%; width: 0.76%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 63.07%; width: 0.66%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 64.38%; width: 0.37%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 65.28%; width: 0.74%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 66.24%; width: 0.78%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 67.01%; width: 0.54%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 67.63%; width: 0.68%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 68.88%; width: 0.53%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 69.43%; width: 0.53%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 70.68%; width: 0.60%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 71.29%; width: 0.63%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 72.40%; width: 0.50%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 73.29%; width: 0.54%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 73.91%; width: 0.49%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 75.23%; width: 0.80%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 75.94%; width: 0.74%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 77.00%; width: 0.44%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 77.75%; width: 0.41%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 78.57%; width: 0.60%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 79.62%; width: 0.78%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 80.36%; width: 0.43%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 81.24%; width: 0.42%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 82.26%; width: 0.58%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 83.10%; width: 0.58%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 84.11%; width: 0.51%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 85.01%; width: 0.36%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 85.66%; width: 0.59%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 86.51%; width: 0.68%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 87.46%; width: 0.46%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 88.56%; width: 0.54%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 89.14%; width: 0.70%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 90.44%; width: 0.76%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 91.39%; width: 0.66%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 92.32%; width: 0.36%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 93.11%; width: 0.62%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 93.99%; width: 0.75%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 94.52%; width: 0.41%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 95.44%; width: 0.40%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 96.35%; width: 0.35%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 97.53%; width: 0.78%; background: #CCF23A; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 98.20%; width: 0.41%; background: #CCF23A; border-radius: 2px"></span>
+</div>
+
+<div class="trk" style="position: relative; height: 40px; border-bottom: 1px solid #16233A">
+<span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 0.13%; width: 0.34%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 1.21%; width: 0.30%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 2.73%; width: 0.30%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 3.59%; width: 0.36%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 4.46%; width: 0.29%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 5.30%; width: 0.26%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 6.83%; width: 0.40%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 7.47%; width: 0.39%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 8.75%; width: 0.24%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 9.61%; width: 0.33%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 10.64%; width: 0.23%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 11.76%; width: 0.34%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 12.99%; width: 0.31%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 14.32%; width: 0.23%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 15.01%; width: 0.28%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 15.80%; width: 0.22%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 17.11%; width: 0.24%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 18.05%; width: 0.39%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 19.45%; width: 0.36%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 20.29%; width: 0.37%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 21.67%; width: 0.36%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 22.54%; width: 0.32%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 23.39%; width: 0.29%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 24.54%; width: 0.31%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 25.64%; width: 0.35%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 26.75%; width: 0.33%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 27.84%; width: 0.38%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 28.97%; width: 0.40%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 29.77%; width: 0.31%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 31.15%; width: 0.40%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 31.82%; width: 0.23%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 32.87%; width: 0.38%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 34.15%; width: 0.35%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 35.36%; width: 0.36%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 35.94%; width: 0.26%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 37.37%; width: 0.24%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 38.49%; width: 0.36%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 39.37%; width: 0.35%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 40.36%; width: 0.30%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 41.63%; width: 0.32%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 42.68%; width: 0.27%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 43.61%; width: 0.30%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 44.48%; width: 0.25%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 45.66%; width: 0.26%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 46.91%; width: 0.37%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 47.61%; width: 0.34%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 49.00%; width: 0.24%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 49.69%; width: 0.39%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 50.55%; width: 0.24%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 51.86%; width: 0.22%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 53.10%; width: 0.38%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 53.82%; width: 0.26%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 55.36%; width: 0.35%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 55.93%; width: 0.24%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 57.27%; width: 0.22%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 58.44%; width: 0.33%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 59.45%; width: 0.24%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 60.24%; width: 0.35%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 61.69%; width: 0.32%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 62.51%; width: 0.36%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 63.64%; width: 0.35%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 64.62%; width: 0.24%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 65.33%; width: 0.33%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 66.49%; width: 0.32%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 67.56%; width: 0.26%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 68.85%; width: 0.33%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 70.02%; width: 0.26%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 71.14%; width: 0.23%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 72.05%; width: 0.29%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 73.17%; width: 0.34%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 74.23%; width: 0.24%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 75.36%; width: 0.31%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 76.35%; width: 0.30%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 77.43%; width: 0.36%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 78.40%; width: 0.38%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 79.53%; width: 0.25%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 80.50%; width: 0.25%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 81.17%; width: 0.39%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 82.75%; width: 0.23%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 83.25%; width: 0.27%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 84.85%; width: 0.38%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 85.91%; width: 0.27%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 86.49%; width: 0.23%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 87.71%; width: 0.32%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 88.56%; width: 0.28%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 89.83%; width: 0.26%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 90.61%; width: 0.23%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 91.69%; width: 0.33%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 92.98%; width: 0.37%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 94.19%; width: 0.31%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 95.23%; width: 0.29%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 96.23%; width: 0.39%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 97.38%; width: 0.39%; background: #9BCB1B; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 98.40%; width: 0.33%; background: #9BCB1B; border-radius: 2px"></span>
+</div>
+
+<div class="trk" style="position: relative; height: 40px; border-bottom: 1px solid #16233A">
+<span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 0.65%; width: 0.25%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 1.41%; width: 0.35%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 3.24%; width: 0.30%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 4.51%; width: 0.29%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 5.83%; width: 0.24%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 6.83%; width: 0.23%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 8.43%; width: 0.28%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 9.66%; width: 0.34%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 10.95%; width: 0.23%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 12.21%; width: 0.37%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 14.27%; width: 0.23%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 15.54%; width: 0.28%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 16.60%; width: 0.38%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 18.28%; width: 0.22%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 19.79%; width: 0.26%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 20.87%; width: 0.30%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 21.73%; width: 0.25%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 23.67%; width: 0.36%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 24.61%; width: 0.37%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 26.43%; width: 0.28%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 27.50%; width: 0.27%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 28.69%; width: 0.38%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 30.54%; width: 0.34%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 31.60%; width: 0.38%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 33.21%; width: 0.37%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 34.52%; width: 0.39%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 35.82%; width: 0.27%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 37.20%; width: 0.28%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 38.68%; width: 0.25%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 40.02%; width: 0.34%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 41.35%; width: 0.30%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 42.69%; width: 0.37%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 43.43%; width: 0.26%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 44.91%; width: 0.22%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 46.58%; width: 0.37%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 47.98%; width: 0.37%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 49.53%; width: 0.37%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 50.35%; width: 0.32%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 51.91%; width: 0.29%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 53.33%; width: 0.36%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 54.67%; width: 0.29%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 56.01%; width: 0.26%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 57.53%; width: 0.36%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 58.56%; width: 0.27%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 60.17%; width: 0.32%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 61.79%; width: 0.32%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 62.64%; width: 0.33%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 64.21%; width: 0.33%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 65.56%; width: 0.25%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 66.62%; width: 0.24%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 68.08%; width: 0.33%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 69.88%; width: 0.34%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 70.84%; width: 0.28%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 72.20%; width: 0.24%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 73.36%; width: 0.23%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 74.98%; width: 0.29%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 76.02%; width: 0.33%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 77.63%; width: 0.30%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 78.74%; width: 0.37%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 80.24%; width: 0.27%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 81.47%; width: 0.26%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 83.08%; width: 0.26%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 84.58%; width: 0.32%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 86.05%; width: 0.36%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 87.20%; width: 0.38%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 88.71%; width: 0.24%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 90.01%; width: 0.35%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 91.59%; width: 0.32%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 93.01%; width: 0.27%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 94.38%; width: 0.23%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 95.02%; width: 0.28%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 96.98%; width: 0.38%; background: #F07167; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 98.23%; width: 0.32%; background: #F07167; border-radius: 2px"></span>
+</div>
+
+<div class="trk" style="position: relative; height: 40px; border-bottom: 1px solid #16233A">
+<span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 0.31%; width: 0.32%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 3.15%; width: 0.25%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 5.35%; width: 0.34%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 7.21%; width: 0.39%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 9.00%; width: 0.23%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 11.71%; width: 0.31%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 13.71%; width: 0.34%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 15.95%; width: 0.23%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 18.13%; width: 0.40%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 20.46%; width: 0.34%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 22.25%; width: 0.26%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 24.49%; width: 0.32%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 26.39%; width: 0.22%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 29.09%; width: 0.34%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 31.39%; width: 0.28%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 33.24%; width: 0.39%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 35.17%; width: 0.33%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 36.84%; width: 0.26%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 39.32%; width: 0.30%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 40.95%; width: 0.32%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 44.05%; width: 0.37%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 45.31%; width: 0.28%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 48.14%; width: 0.30%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 49.91%; width: 0.27%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 51.75%; width: 0.29%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 54.36%; width: 0.33%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 56.61%; width: 0.32%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 58.67%; width: 0.33%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 61.42%; width: 0.39%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 63.01%; width: 0.37%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 65.83%; width: 0.34%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 67.24%; width: 0.33%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 68.94%; width: 0.27%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 71.06%; width: 0.37%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 73.32%; width: 0.26%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 76.19%; width: 0.26%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 77.83%; width: 0.25%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 80.61%; width: 0.28%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 82.59%; width: 0.36%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 83.95%; width: 0.37%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 87.26%; width: 0.36%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 89.47%; width: 0.23%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 90.63%; width: 0.23%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 93.81%; width: 0.31%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 95.05%; width: 0.31%; background: #F5B83D; border-radius: 2px"></span><span class="tb" style="position: absolute; top: 9px; bottom: 9px; left: 97.93%; width: 0.35%; background: #F5B83D; border-radius: 2px"></span>
+</div>
+
+<div class="tlhead" aria-hidden="true"><span class="tlknob"></span></div>
+</div>
+</div>
+<p class="mono" style="margin: 16px 0 0; font-size: 11px; color: #8A99AC; letter-spacing: .06em">EVERY WINNER AND ERROR, PLACED ON THE MATCH VIDEO · CLICK ANY POINT TO REPLAY IT IN THE PLATFORM</p>
+</div>
+</div>
+</section>
+
+
+
+<section id="process" style="position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; padding: 110px 32px 100px">
+<h2 style="margin: 0; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 54px; line-height: 1.02; letter-spacing: -0.03em">Record → Analyze → Improve.</h2>
+<p class="mono" id="procread" style="margin: 14px 0 0; font-size: 13px; color: #4A5868; letter-spacing: .06em">MOVE YOUR MOUSE TO SCRUB THE TIMELINE</p>
+<div style="position: relative; margin-top: 56px; height: 8px; background: #D5DCE4; border-radius: 4px">
+<div class="played" style="position: absolute; left: 0; top: 0; bottom: 0; background: #0E1A2B; border-radius: 4px"></div>
+<div class="playhead" aria-hidden="true" style="position: absolute; top: -10px; width: 28px; height: 28px; margin-left: -14px; border-radius: 50%; background: #CCF23A; border: 3px solid #0E1A2B"></div>
+</div>
+<div class="grid3" style="margin-top: 40px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 12px"><span class="mono" style="font-size: 14px; font-weight: 700; color: #3F6212">00:00 · RECORD</span><h3 style="margin: 0; font-family: Montserrat, sans-serif; font-size: 26px; font-weight: 800">Film with your phone</h3><p style="margin: 0; font-size: 17px; line-height: 1.6; color: #3B4A5C">A full match or a short drill. Upload it to Vision.</p></div>
+<div style="display: flex; flex-direction: column; gap: 12px"><span class="mono" style="font-size: 14px; font-weight: 700; color: #3F6212">00:01 · ANALYZE</span><h3 style="margin: 0; font-family: Montserrat, sans-serif; font-size: 26px; font-weight: 800">Vision does the watching</h3><p style="margin: 0; font-size: 17px; line-height: 1.6; color: #3B4A5C">Players, racket and ball tracked frame by frame; every stroke scored.</p></div>
+<div style="display: flex; flex-direction: column; gap: 12px"><span class="mono" style="font-size: 14px; font-weight: 700; color: #3F6212">00:02 · IMPROVE</span><h3 style="margin: 0; font-family: Montserrat, sans-serif; font-size: 26px; font-weight: 800">Make better decisions</h3><p style="margin: 0; font-size: 17px; line-height: 1.6; color: #3B4A5C">Clear takeaways and drills for the next session on court.</p></div>
+</div>
+</section>
+
+<section style="position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; padding: 20px 32px 110px">
+<p class="mono" style="margin: 0 0 20px; font-size: 13px; font-weight: 700; letter-spacing: .14em; color: #3F6212">[ WHO IT'S FOR ]</p>
+<div style="border-top: 2px solid #0E1A2B">
+<a class="row" href="#join" style="display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; padding: 30px 12px; border-bottom: 1px solid #0E1A2B; text-decoration: none; color: #0E1A2B"><span style="font-family: Montserrat, sans-serif; font-size: 40px; font-weight: 900; letter-spacing: -0.02em">Players</span><span style="flex: 1 1 300px; max-width: 460px; font-size: 17px; line-height: 1.5">Know exactly what to work on between lessons.</span><span class="go mono" style="font-size: 22px; font-weight: 700">→</span></a>
+<a class="row" href="#join" style="display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; padding: 30px 12px; border-bottom: 1px solid #0E1A2B; text-decoration: none; color: #0E1A2B"><span style="font-family: Montserrat, sans-serif; font-size: 40px; font-weight: 900; letter-spacing: -0.02em">Coaches</span><span style="flex: 1 1 300px; max-width: 460px; font-size: 17px; line-height: 1.5">Show students what you see, with clips and data to back it up.</span><span class="go mono" style="font-size: 22px; font-weight: 700">→</span></a>
+<a class="row" href="#join" style="display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; padding: 30px 12px; border-bottom: 1px solid #0E1A2B; text-decoration: none; color: #0E1A2B"><span style="font-family: Montserrat, sans-serif; font-size: 40px; font-weight: 900; letter-spacing: -0.02em">Clubs</span><span style="flex: 1 1 300px; max-width: 460px; font-size: 17px; line-height: 1.5">Offer video analysis as part of classes and memberships.</span><span class="go mono" style="font-size: 22px; font-weight: 700">→</span></a>
+<a class="row" href="#join" style="display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; padding: 30px 12px; border-bottom: 1px solid #0E1A2B; text-decoration: none; color: #0E1A2B"><span style="font-family: Montserrat, sans-serif; font-size: 40px; font-weight: 900; letter-spacing: -0.02em">Federations</span><span style="flex: 1 1 300px; max-width: 460px; font-size: 17px; line-height: 1.5">Scout tournaments and national squads with consistent, comparable match data.</span><span class="go mono" style="font-size: 22px; font-weight: 700">→</span></a>
+</div>
+</section>
+
+<section id="join" style="position: relative; z-index: 2; background: #0E1A2B; color: #FFFFFF">
+<div class="stack" style="max-width: 1280px; margin: 0 auto; padding: 100px 32px 80px; display: flex; gap: 64px; align-items: center; justify-content: space-between">
+<div style="flex: 1 1 560px; min-width: 0">
+<p class="mono" style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .14em; color: #CCF23A">[ EARLY ACCESS ]</p>
+<h2 class="hh" style="margin: 18px 0 0; font-family: Montserrat, sans-serif; font-weight: 900; font-size: 72px; line-height: 1; letter-spacing: -0.04em">Send us your next match.</h2>
+<p style="margin: 22px 0 0; max-width: 480px; font-size: 19px; line-height: 1.6; color: #C9D3DF">Players get Vision in their pocket. Coaches, clubs and federations get the full match insights platform.</p>
+<form style="margin-top: 36px; max-width: 520px; display: flex; flex-direction: column; gap: 12px">
+<label class="mono" for="c-email" style="font-size: 12px; font-weight: 600; letter-spacing: .1em; color: #C9D3DF">EMAIL</label>
+<input id="c-email" class="field" type="email" placeholder="you@email.com" style="height: 60px; border-radius: 8px; border: 1px solid #3A4A60; background: #15253A; color: #FFFFFF; padding: 0 20px; font-size: 17px; font-family: Inter, sans-serif">
+<button class="mag" type="button" data-start data-mag style="height: 60px; border: 0; border-radius: 8px; background: #CCF23A; color: #0E1A2B; font-size: 17px; font-weight: 700; font-family: Inter, sans-serif; cursor: pointer">Get started</button>
+<div data-if="started" hidden>
+<p class="fade" role="status" style="margin: 6px 0 0; font-size: 16px; line-height: 1.5; color: #C9D3DF">You're in. Your phone is ready: <a href="https://vision.padellabs.tech" target="_blank" rel="noopener" style="color: #CCF23A; font-weight: 700">open Vision at vision.padellabs.tech →</a></p>
+</div>
+</form>
+</div>
+<div style="flex: 0 0 300px; display: flex; flex-direction: column; align-items: center; gap: 14px">
+<div class="ctaphone" style="position: relative; width: 280px; height: 576px; box-sizing: border-box; padding: 10px; border-radius: 46px; background: #05090F; box-shadow: 0 0 0 2px #2A3A50 inset, 0 0 80px -10px rgba(204,242,58,.35)">
+<div style="position: relative; width: 260px; height: 556px; border-radius: 37px; overflow: hidden; background: #FFFFFF">
+<div aria-hidden="true" style="position: absolute; z-index: 2; left: 50%; top: 10px; width: 86px; height: 26px; margin-left: -43px; border-radius: 16px; background: #05090F"></div>
+<div data-if="started" hidden><img class="appin" src="assets/vision-video-review.png" alt="Vision app showing a serve video with tracking and the Ask Vision bar" style="position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top"></div>
+<img class="slide" src="assets/vision-home.png" alt="Vision home: How can I help you analyze your game?" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top"><img class="slide" src="assets/vision-analysis.png" alt="Vision analysis: overall score 7.8 out of 10 with key takeaways" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top"><img class="slide" src="assets/vision-video-review.png" alt="Vision video review of a serve with tracking" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top">
+<video id="logovid" src="assets/padel-labs-logo-animation.mp4" autoplay="" muted="" loop="" playsinline="" aria-label="Padel Labs logo animation" style="display: block; position: absolute; left: 50%; top: 50%; width: 91%; height: auto; transform: translate(-50%, -50%); filter: brightness(1.03); z-index: 0"></video>
+</div>
+</div>
+<div style="display: flex; gap: 2px; align-items: center">
+<button type="button" class="sdot on" data-slide="0" aria-label="Show Logo" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span class="sdin" style="display: block; height: 6px; border-radius: 3px"></span></button><button type="button" class="sdot" data-slide="1" aria-label="Show Home" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span class="sdin" style="display: block; height: 6px; border-radius: 3px"></span></button><button type="button" class="sdot" data-slide="2" aria-label="Show Analysis" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span class="sdin" style="display: block; height: 6px; border-radius: 3px"></span></button><button type="button" class="sdot" data-slide="3" aria-label="Show Video review" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center"><span class="sdin" style="display: block; height: 6px; border-radius: 3px"></span></button>
+</div>
+<span class="mono" style="font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #C9D3DF"><span id="slidelabel">PADEL LABS</span></span>
+</div>
+</div>
+<div style="border-top: 1px solid #22324A">
+<div style="max-width: 1280px; margin: 0 auto; padding: 56px 32px; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap">
+<p style="margin: 0; font-family: Montserrat, sans-serif; font-weight: 800; font-size: 46px; line-height: 1.1; letter-spacing: -0.02em; color: #FFFFFF">AI-powered intelligence built to <span class="sr">improve, coach, analyze and engage</span><span class="rot lime fbig" aria-hidden="true"><span class="rot-in"><span>improve.</span><span>coach.</span><span>analyze.</span><span>engage.</span><span>improve.</span></span></span></p>
+</div>
+</div>
+<div style="max-width: 1280px; margin: 0 auto; padding: 28px 32px 48px; display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; border-top: 1px solid #22324A; font-size: 14px; color: #C9D3DF">
+<span class="mono">© 2026 PADEL LABS</span>
+<nav class="mono" aria-label="Footer" style="display: flex; gap: 24px"><a href="#top" style="color: #FFFFFF">INSTAGRAM</a><a href="https://www.linkedin.com/company/padel-labs" target="_blank" rel="noopener" style="color: #FFFFFF">LINKEDIN</a><a href="#join" style="color: #FFFFFF">CONTACT</a></nav>
+</div>
+</section>
+
+</div>
+<script>
+(() => {
+  const root = document.getElementById('root');
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+
+  // Cursor ball + hero tilt/glow
+  root.addEventListener('mousemove', (e) => {
+    const r = root.getBoundingClientRect();
+    root.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    root.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    root.style.setProperty('--nx', ((e.clientX / innerWidth) * 2 - 1).toFixed(3));
+    root.style.setProperty('--ny', ((e.clientY / innerHeight) * 2 - 1).toFixed(3));
+  });
+
+  // Magnetic buttons
+  $$('[data-mag]').forEach((el) => {
+    el.addEventListener('mousemove', (e) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--bx', ((e.clientX - r.left - r.width / 2) * 0.25) + 'px');
+      el.style.setProperty('--by', ((e.clientY - r.top - r.height / 2) * 0.35) + 'px');
+    });
+    el.addEventListener('mouseleave', () => { el.style.removeProperty('--bx'); el.style.removeProperty('--by'); });
+  });
+
+  // Process timeline scrub
+  const proc = document.getElementById('process');
+  if (proc) proc.addEventListener('pointermove', (e) => {
+    const r = proc.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (e.clientX - r.left - 32) / (r.width - 64)));
+    root.style.setProperty('--sx', (x * 100).toFixed(1) + '%');
+  });
+
+  // Match timeline scrub
+  const tl = document.querySelector('.tl'); const tlRead = document.getElementById('tlread');
+  if (tl) tl.addEventListener('pointermove', (e) => {
+    const r = tl.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    tl.style.setProperty('--tx', (x * 100).toFixed(2) + '%');
+    const pt = Math.round(x * 215) + 1; const set = x < 0.38 ? 1 : x < 0.72 ? 2 : 3;
+    tlRead.textContent = 'POINT ' + String(pt).padStart(3, '0') + ' / 216 · SET ' + set;
+  });
+
+  // Vision scroll story: sticky phone follows the step nearest the viewport centre
+  const steps = $$('[data-step]'); const strip = document.querySelector('.strip');
+  const stepDots = $$('[data-step-go]'); let step = 0;
+  const setStep = (n) => {
+    step = n;
+    steps.forEach((el, i) => el.classList.toggle('on', i === n));
+    stepDots.forEach((el, i) => el.classList.toggle('on', i === n));
+    strip.style.transform = 'translateY(' + (-n * 716) + 'px)';
+  };
+  const onScroll = () => {
+    let best = 0, bd = Infinity;
+    steps.forEach((b, i) => { const r = b.getBoundingClientRect(); const d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = i; } });
+    if (best !== step) setStep(best);
+  };
+  const small = matchMedia('(max-width: 760px)');
+  let cycle;
+  const arrange = () => {
+    clearInterval(cycle);
+    if (small.matches) cycle = setInterval(() => setStep((step + 1) % steps.length), 3200);
+    else onScroll();
+  };
+  addEventListener('scroll', () => { if (!small.matches) onScroll(); }, { passive: true });
+  addEventListener('resize', arrange); arrange();
+  if (matchMedia('(hover: none)').matches) {
+    const pr = document.getElementById('procread'); if (pr) pr.textContent = 'DRAG ACROSS TO SCRUB THE TIMELINE';
+    if (tlRead) tlRead.textContent = 'DRAG ACROSS TO SCRUB';
+  }
+  stepDots.forEach((el) => el.addEventListener('click', () => setStep(+el.dataset.stepGo)));
+
+  // Match insights tabs
+  const crumbs = ['PLAYER PERFORMANCE', 'VIDEO REVIEW', 'MOMENTUM & REPLAY', 'POINTS & SHOTS'];
+  const itabs = $$('[data-itab]');
+  const pickTab = (n) => {
+    itabs.forEach((el, i) => el.classList.toggle('on', i === n));
+    ['i0', 'i1', 'i2', 'i3'].forEach((k, i) => { document.querySelector('[data-if="' + k + '"]').hidden = i !== n; });
+    document.getElementById('crumb').textContent = crumbs[n];
+  };
+  itabs.forEach((el) => { const n = +el.dataset.itab; el.addEventListener('mouseenter', () => pickTab(n)); el.addEventListener('click', () => pickTab(n)); });
+
+  // CTA phone slideshow: logo video, then three app screens
+  const video = document.getElementById('logovid');
+  if (video) { video.muted = true; const p = video.play(); if (p && p.catch) p.catch(() => {}); }
+  const slides = $$('.slide'); const sdots = $$('[data-slide]'); const label = document.getElementById('slidelabel');
+  const labels = ['PADEL LABS', 'ASK VISION', 'STROKE ANALYSIS', 'VIDEO REVIEW']; const dur = [9000, 3800, 3800, 3800];
+  let slide = 0, timer;
+  const goSlide = (n) => {
+    clearTimeout(timer); slide = n;
+    slides.forEach((el, i) => el.classList.toggle('on', i + 1 === n));
+    sdots.forEach((el, i) => el.classList.toggle('on', i === n));
+    label.textContent = labels[n];
+    if (n === 0 && video) { try { video.currentTime = 0; video.play().catch(() => {}); } catch (e) {} }
+    timer = setTimeout(() => goSlide((slide + 1) % 4), dur[n]);
+  };
+  sdots.forEach((el) => el.addEventListener('click', () => goSlide(+el.dataset.slide)));
+  goSlide(0);
+
+  // Get started: slide the app screen into the phone and reveal the Vision link
+  $$('[data-start]').forEach((el) => el.addEventListener('click', () => {
+    $$('[data-if="started"]').forEach((x) => { x.hidden = false; });
+  }));
+})();
+
+</script>
+
+<script>
+/* Hero court v2: players move on slow loops with an animated pose skeleton (gait, split-step, strokes).
+   P1's smash is synced to the ball's flight; rings, partner gaps and net distance follow the players live. */
+(function(){
+  const $=id=>document.getElementById(id);
+  const L12=$('hc-l12'); if(!L12) return;
+  const L34=$('hc-l34'),LN=$('hc-ln'),T12=$('hc-t12'),T34=$('hc-t34'),TN=$('hc-tn');
+  const rings=[...document.querySelectorAll('#hc-rings circle')];
+  const ids=['p1','p2','p3','p4'];
+  const bb=ids.map(k=>$('hc-'+k));
+  const flight=document.querySelector('.hc-flight svg');
+  const BALL=3.4; // seconds, matches the ball's animateMotion
+  // floor loops: [x, y, ampX, ampY, period, stroke, lefty]
+  const base=[[158,150,7,6,6.5,'smash',0],[205,282,30,26,5.2,null,0],[566,118,22,20,5.8,'volley',1],[615,282,34,24,4.6,null,0]];
+  const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NS='http://www.w3.org/2000/svg';
+  const BONES=[['ls','rs'],['ls','lh'],['rs','rh'],['lh','rh'],['ls','le'],['le','lw'],['rs','re'],['re','rw'],['lh','lk'],['lk','la'],['rh','rk'],['rk','ra'],['nk','hd']];
+  const JOINTS=['ls','rs','le','re','lw','rw','lh','rh','lk','rk','la','ra'];
+  // build each skeleton once
+  const figs=ids.map(id=>{
+    const svg=$('hc-fig-'+id), col=svg.style.color, el=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e};
+    const f={bones:BONES.map(()=>el('line',{stroke:col,'stroke-width':2.4,'stroke-linecap':'round'}))};
+    f.handle=el('line',{stroke:'#E8EEF5','stroke-width':1.8,'stroke-linecap':'round'});
+    f.head2=el('ellipse',{rx:4.6,ry:5.8,fill:'none',stroke:'#E8EEF5','stroke-width':1.7});
+    f.head=el('circle',{r:5.4,fill:'rgba(7,16,28,.55)',stroke:col,'stroke-width':2.2});
+    f.dots=JOINTS.map(()=>el('circle',{r:2.2,fill:'#F4FF9A'}));
+    return f;
+  });
+  const ease=x=>x*x*(3-2*x), lerp=(a,b,k)=>a+(b-a)*k;
+  // stroke keyframes for the racket arm, relative to its shoulder (x = outward): [t, elbow, wrist, racketTip]
+  const KF={
+    smash:[[0,[4,10],[-3,16],[3,5]],[.32,[9,-1],[8,-9],[-1,-1]],[.5,[4,-12],[5,-23],[8,-36]],[.72,[-1,6],[-11,15],[-19,22]],[1,[4,10],[-3,16],[3,5]]],
+    volley:[[0,[4,10],[-3,16],[3,5]],[.35,[9,8],[15,6],[24,-2]],[.55,[9,8],[16,7],[26,1]],[1,[4,10],[-3,16],[3,5]]]
+  };
+  const READY=KF.smash[0];
+  function kf(kind,s){
+    const K=KF[kind]; let i=0; while(i<K.length-2&&s>K[i+1][0]) i++;
+    const A=K[i],B=K[i+1],k=ease(Math.min(1,Math.max(0,(s-A[0])/(B[0]-A[0]))));
+    return [1,2,3].map(j=>[lerp(A[j][0],B[j][0],k),lerp(A[j][1],B[j][1],k)]);
+  }
+  const st=base.map(()=>({g:Math.random()*6,prev:null}));
+  function pose(i,s,dt,vx,speed){
+    const [, , , , , kind, lefty]=base[i], S=st[i];
+    const a=Math.min(1,speed/26);                       // how much the player is running
+    S.g+=dt*(5+speed*.32);                               // gait phase
+    let swing=null, crouch=.35+.25*a, bounce=0;
+    if(kind==='smash'){ // contact at ball phase 0
+      const ph=((flight&&flight.getCurrentTime?flight.getCurrentTime():s)/BALL)%1;
+      const w=(ph+.24)%1; if(w<.48){ swing=w/.48; crouch=lerp(.35,.9,Math.sin(Math.min(1,swing*1.7)*Math.PI/2)); if(swing>.4&&swing<.62) bounce=4*Math.sin((swing-.4)/.22*Math.PI); }
+    } else if(kind==='volley'){ const w=(s/2.9+i*.37)%1; if(w<.4) swing=w/.4; }
+    if(!swing&&a<.35) bounce=Math.max(bounce,3*Math.pow(Math.max(0,Math.sin(s*2*Math.PI/1.3+i)),6)); // split-step
+    const sway=Math.max(-5,Math.min(5,vx*.18));
+    const hip=[28+sway,46+crouch*6-bounce], shY=hip[1]-19, nk=[hip[0]+sway*.4,shY-1.5];
+    const P={nk,hd:[nk[0]+sway*.2,nk[1]-8],ls:[nk[0]-8,shY],rs:[nk[0]+8,shY],lh:[hip[0]-5,hip[1]],rh:[hip[0]+5,hip[1]]};
+    [['l',-1,0],['r',1,Math.PI]].forEach(([sd,sg,off])=>{
+      const lift=a*Math.max(0,Math.sin(S.g+off))*7, footX=hip[0]-sway*.6+sg*(7+crouch*4), ank=[footX,82-lift-bounce*.8];
+      P[sd+'a']=ank; P[sd+'k']=[(P[sd+'h'][0]+ank[0])/2+sg*(1.5+crouch*3.5),(P[sd+'h'][1]+ank[1])/2-lift*.35];
+    });
+    const dom=lefty?'l':'r', off=lefty?'r':'l', dsg=lefty?-1:1;
+    const arm=swing==null?READY.slice(1):kf(kind,swing);
+    const S0=P[dom+'s'];
+    P[dom+'e']=[S0[0]+dsg*arm[0][0],S0[1]+arm[0][1]]; P[dom+'w']=[S0[0]+dsg*arm[1][0],S0[1]+arm[1][1]];
+    const tip=[S0[0]+dsg*arm[2][0],S0[1]+arm[2][1]];
+    // free arm: tracks the ball on the smash, otherwise guards the body and swings with the run
+    const O=P[off+'s'], osg=-dsg; let oe,ow;
+    if(kind==='smash'&&swing!=null&&swing<.55){const k=ease(Math.min(1,swing/.3)); oe=[O[0]+osg*lerp(5,3,k),O[1]+lerp(10,-9,k)]; ow=[O[0]+osg*lerp(3,1,k),O[1]+lerp(16,-20,k)];}
+    else{const sw=a*Math.sin(S.g)*4; oe=[O[0]+osg*6,O[1]+10+sw*.4]; ow=[O[0]+osg*2,O[1]+17-sw];}
+    P[off+'e']=oe; P[off+'w']=ow;
+    const f=figs[i];
+    BONES.forEach(([u,v],k)=>{const l=f.bones[k];l.setAttribute('x1',P[u][0].toFixed(1));l.setAttribute('y1',P[u][1].toFixed(1));l.setAttribute('x2',P[v][0].toFixed(1));l.setAttribute('y2',P[v][1].toFixed(1))});
+    const W=P[dom+'w']; f.handle.setAttribute('x1',W[0].toFixed(1));f.handle.setAttribute('y1',W[1].toFixed(1));f.handle.setAttribute('x2',tip[0].toFixed(1));f.handle.setAttribute('y2',tip[1].toFixed(1));
+    const ang=Math.atan2(tip[1]-W[1],tip[0]-W[0])*180/Math.PI+90, len=Math.hypot(tip[0]-W[0],tip[1]-W[1])||1;
+    const hc=[tip[0]+(tip[0]-W[0])/len*4,tip[1]+(tip[1]-W[1])/len*4];
+    f.head2.setAttribute('cx',hc[0].toFixed(1));f.head2.setAttribute('cy',hc[1].toFixed(1));f.head2.setAttribute('transform',`rotate(${ang.toFixed(0)} ${hc[0].toFixed(1)} ${hc[1].toFixed(1)})`);
+    f.head.setAttribute('cx',P.hd[0].toFixed(1));f.head.setAttribute('cy',P.hd[1].toFixed(1));
+    JOINTS.forEach((j,k)=>{f.dots[k].setAttribute('cx',P[j][0].toFixed(1));f.dots[k].setAttribute('cy',P[j][1].toFixed(1))});
+  }
+  const m=v=>(v/40).toFixed(1)+' m';
+  const place=(el,x,y)=>{el.style.left=x.toFixed(1)+'px';el.style.top=y.toFixed(1)+'px'};
+  const line=(l,a,b)=>{l.setAttribute('x1',a[0]);l.setAttribute('y1',a[1]);l.setAttribute('x2',b[0]);l.setAttribute('y2',b[1])};
+  let last=null;
+  function frame(t){
+    const s=t/1000, dt=last==null?0:Math.min(.05,s-last); last=s;
+    const P=base.map(([x,y,ax,ay,T],i)=>[x+ax*Math.sin(s*2*Math.PI/T+i), y+ay*Math.sin(s*2*Math.PI/(T*1.3)+i*2)]);
+    P.forEach((p,i)=>{
+      const pr=st[i].prev||p, vx=dt?(p[0]-pr[0])/dt:0, vy=dt?(p[1]-pr[1])/dt:0; st[i].prev=p;
+      rings[i].setAttribute('cx',p[0].toFixed(1));rings[i].setAttribute('cy',p[1].toFixed(1));place(bb[i],p[0],p[1]);
+      pose(i,s,dt,vx,Math.hypot(vx,vy));
+    });
+    line(L12,P[0],P[1]); line(L34,P[2],P[3]); line(LN,P[2],[400,P[2][1]]);
+    place(T12,(P[0][0]+P[1][0])/2,(P[0][1]+P[1][1])/2); T12.firstChild.firstChild.textContent='GAP '+m(Math.hypot(P[0][0]-P[1][0],P[0][1]-P[1][1]));
+    place(T34,(P[2][0]+P[3][0])/2,(P[2][1]+P[3][1])/2); T34.firstChild.firstChild.textContent='GAP '+m(Math.hypot(P[2][0]-P[3][0],P[2][1]-P[3][1]));
+    place(TN,(P[2][0]+400)/2,P[2][1]); TN.firstChild.firstChild.textContent='NET '+m(P[2][0]-400);
+    if(!still) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -111,6 +111,56 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 .ring{transform-box:fill-box;transform-origin:center;animation:ring 2s ease-in-out infinite}@keyframes ring{50%{transform:scale(1.35);opacity:.4}}
 .pl{animation:p1 6s ease-in-out infinite}.p2{animation-name:p2;animation-duration:7s}.p3{animation-name:p3;animation-duration:5.5s}.p4{animation-name:p4;animation-duration:6.5s}
 @keyframes p1{50%{transform:translate(14px,10px)}}@keyframes p2{50%{transform:translate(18px,-8px)}}@keyframes p3{50%{transform:translate(-16px,12px)}}@keyframes p4{50%{transform:translate(-10px,-14px)}}
+/* ---------- Broadcast hero. Frame + data layers share one box, so overlays stay pinned to the players. ---------- */
+.bcwrap{position:absolute;inset:0;container-type:size;overflow:hidden}
+.bc{position:absolute;left:68%;top:47%;width:max(108cqw,1100px);aspect-ratio:16/9;-webkit-mask-image:radial-gradient(ellipse 72% 68% at 52% 50%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 72% 68% at 52% 50%,#000 62%,transparent 100%);transform:translate(-50%,-50%) scale(var(--kb,1.02));animation:bckb 26s ease-in-out infinite alternate}
+@keyframes bckb{from{--kb:1.02;--kx:0px}to{--kb:1.09;--kx:-30px}}
+@property --kb{syntax:'<number>';inherits:false;initial-value:1.02}
+.bc video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.95) brightness(.8);transition:filter .8s}
+.bc.lv1 video{filter:saturate(.85) brightness(.62)}
+.bc .pl{transition:opacity .4s}.bc .pl.off{opacity:0}
+.bc .bct{font-family:"JetBrains Mono",monospace;font-weight:700}
+.bc svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.bc .L{opacity:0;transition:opacity .6s}
+.bc.lv1 .L1,.bc.lv2 .L2,.bc.lv3 .L3,.bc.lv4 .L4{opacity:1}
+.bc .draw{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)}
+.bc.lv1 .L1 .draw,.bc.lv2 .L2 .draw,.bc.lv4 .L4 .draw{stroke-dashoffset:0}
+.bc-ring{fill:rgba(204,242,58,.18);stroke:#CCF23A;stroke-width:2.5;transform-box:fill-box;transform-origin:center;transform:scale(.2);transition:transform .7s cubic-bezier(.3,1.5,.5,1)}
+.bc-ring.b{fill:rgba(56,189,248,.18);stroke:#38BDF8}
+.bc.lv1 .bc-ring{transform:scale(1)}
+.bc-ball{fill:none;stroke:#CCF23A;stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:bcpulse 1.6s ease-in-out infinite}
+@keyframes bcpulse{50%{transform:scale(1.4);opacity:.6}}
+.bc-sp{stroke:#F4FF9A;stroke-width:2.5;fill:none;transition:stroke .6s}
+.bc.lv3 .bc-sp{stroke:#4ADE80;stroke-width:3.5}
+.bc.lv3 .L2 > g:first-of-type{opacity:.25;transition:opacity .6s}
+.bc-hud{position:absolute;right:32px;top:104px;display:flex;flex-direction:column;align-items:flex-end;gap:10px;font-size:11px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.65);z-index:3}
+.bc-live{display:inline-flex;align-items:center;gap:8px;color:#fff;background:rgba(229,57,53,.9);padding:5px 10px;border-radius:4px}
+.bc-live i{width:7px;height:7px;border-radius:50%;background:#fff;animation:bclive 1.2s ease-in-out infinite}@keyframes bclive{50%{opacity:.2}}
+.bc-card{margin-top:8px;width:250px;text-align:left;letter-spacing:0;background:rgba(5,11,20,.86);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px 14px;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
+.bc-card b{display:block;font-size:11px;letter-spacing:.14em;color:#9AA8B8;margin-bottom:6px}
+.bc-card p{margin:6px 0 0;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#fff;position:relative;padding-left:16px}
+.bc-card p i{position:absolute;left:0;top:5px;width:8px;height:8px;border-radius:50%}
+.bc-card small{display:block;font-weight:400;font-size:11.5px;color:#9AA8B8}
+.bc-hud.lv3 .bc-card{opacity:1;transform:none}
+#bc-hint{color:#CCF23A;transition:opacity .4s}
+#bc-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+#bc-steps li{color:rgba(255,255,255,.35);transition:color .4s,transform .4s;padding-right:14px;position:relative}
+#bc-steps li::after{content:"";position:absolute;right:0;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;border:1px solid rgba(255,255,255,.35)}
+#bc-steps li.on{color:#CCF23A}#bc-steps li.on::after{background:#CCF23A;border-color:#CCF23A}
+.bc-m{display:none}
+@media (max-width:760px){
+.bcwrap,.bc-hud{display:none}
+.bc-m{display:block;margin-top:28px}
+.bc-mslot{position:relative;aspect-ratio:4/3;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 50px rgba(0,0,0,.45);background:#050B14}
+.bc-mslot .bc{left:0;top:0;width:100%;height:100%;aspect-ratio:auto;transform:none;animation:none;-webkit-mask-image:none;mask-image:none}
+.bc-mslot svg *{vector-effect:non-scaling-stroke}
+.bc-mslot .mhide{display:none}
+.bc-mchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;font-size:10px;font-weight:700;letter-spacing:.08em}
+.bc-mchips span{padding:5px 9px;border-radius:20px;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.45);transition:background .4s,color .4s,border-color .4s}
+.bc-mchips span.on{border-color:#CCF23A;color:#0E1A2B;background:#CCF23A}
+}
+.bc.lv3 .bc-balltag{opacity:0;transition:opacity .4s}
+@media (prefers-reduced-motion:reduce){.bc{animation:none}}
 .hscan{position:absolute;left:0;right:0;height:160px;background:linear-gradient(to bottom,transparent,rgba(204,242,58,.05),transparent);animation:hscan 6s linear infinite}@keyframes hscan{from{top:-160px}to{top:100%}}
 .rot.big{--rh:1.08em;height:1.08em;min-width:0}
 .d4{animation-delay:.55s}
@@ -126,7 +176,7 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 .appin{animation:appin .7s cubic-bezier(.2,.7,.2,1) both}@keyframes appin{from{transform:translateY(100%);opacity:.4}to{transform:none;opacity:1}}
 @media (max-width:760px){.vsteps{padding:0 !important}}
 .rot.fbig{--rh:1.15em;min-width:5.5em;vertical-align:bottom}
-.slide{opacity:0;transform:scale(1.04);transition:opacity .6s ease,transform .9s cubic-bezier(.2,.7,.2,1)}.slide.on{opacity:1;transform:none}
+.slide{z-index:1;opacity:0;transform:scale(1.04);transition:opacity .6s ease,transform .9s cubic-bezier(.2,.7,.2,1)}.slide.on{opacity:1;transform:none}
 .sdin{width:6px;background:#3A4A60;transition:width .3s,background .3s}.sdot.on .sdin{width:26px;background:#CCF23A}
 .hud,.hud *{cursor:none !important}
 .pball{position:absolute;left:0;top:0;z-index:200;width:22px;height:22px;margin:-11px 0 0 -11px;pointer-events:none;transform:translate(var(--mx),var(--my));filter:drop-shadow(0 4px 10px rgba(14,26,43,.35)) drop-shadow(0 0 10px rgba(204,242,58,.55))}
@@ -174,7 +224,7 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 </style>
 </head>
 <body>
-<div class="hud" id="root" style="position: relative; overflow: clip; background: #EEF1F4; color: #0E1A2B; font-family: Inter, system-ui, sans-serif; min-height: 9400px">
+<div class="hud" id="root" style="position: relative; overflow: clip; background: #EEF1F4; color: #0E1A2B; font-family: Inter, system-ui, sans-serif">
 <div>
 <div class="intro" aria-hidden="true">
 <div style="display: flex; align-items: center">
@@ -221,32 +271,17 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 <section id="top" style="position: relative; z-index: 2; overflow: hidden; background: #07101C; color: #FFFFFF; min-height: 980px">
 <div class="stage" aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none">
 <div class="hglow" style="position: absolute; inset: 0"></div>
-<div class="hfloor" style="position: absolute; left: -20%; right: -20%; top: 38%; height: 900px"></div>
-<div style="position: absolute; left: 66%; top: 47%; width: 1000px; height: 500px; margin: -250px 0 0 -500px">
-<div class="court3" style="width: 100%; height: 100%">
-<svg viewBox="0 0 400 200" style="width: 100%; height: 100%; overflow: visible">
-<rect x="0" y="0" width="400" height="200" fill="rgba(14,165,233,.16)" stroke="#2C7FB8" stroke-width="1.5"></rect>
-<rect x="-6" y="-6" width="412" height="212" fill="none" stroke="rgba(204,242,58,.35)" stroke-width="1" stroke-dasharray="4 6"></rect>
-<path d="M62 0V200M338 0V200M62 100H338" stroke="#3B8FD0" stroke-width="1.2"></path>
-<path d="M200 -10V210" stroke="#FFFFFF" stroke-width="2.5"></path>
-<path class="flow" d="M90 150C150 30 260 20 318 70" fill="none" stroke="#CCF23A" stroke-width="1.6"></path>
-<path class="flow" d="M318 70C260 120 180 175 110 60" fill="none" stroke="#0EA5E9" stroke-width="1.4"></path>
-<circle r="3.4" fill="#CCF23A"><animateMotion dur="3.2s" repeatCount="indefinite" path="M90 150C150 30 260 20 318 70C260 120 180 175 110 60"></animateMotion></circle>
-<circle class="bounce" cx="318" cy="70" r="5" fill="none" stroke="#CCF23A" stroke-width="1.5"></circle>
-<circle class="bounce b2" cx="110" cy="60" r="5" fill="none" stroke="#0EA5E9" stroke-width="1.5"></circle>
-<g class="pl p1"><circle cx="96" cy="58" r="13" fill="none" stroke="#CCF23A" stroke-width="1.2" class="ring"></circle><circle cx="96" cy="58" r="5" fill="#CCF23A"></circle><text x="96" y="38" text-anchor="middle" font-family="JetBrains Mono" font-size="9" font-weight="700" fill="#CCF23A">P1 · 0.94</text></g>
-<g class="pl p2"><circle cx="92" cy="146" r="13" fill="none" stroke="#CCF23A" stroke-width="1.2" class="ring"></circle><circle cx="92" cy="146" r="5" fill="#CCF23A"></circle><text x="92" y="126" text-anchor="middle" font-family="JetBrains Mono" font-size="9" font-weight="700" fill="#CCF23A">P2 · 0.91</text></g>
-<g class="pl p3"><circle cx="300" cy="62" r="13" fill="none" stroke="#FF8A80" stroke-width="1.2" class="ring"></circle><circle cx="300" cy="62" r="5" fill="#FF8A80"></circle><text x="300" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="9" font-weight="700" fill="#FF8A80">P3 · 0.96</text></g>
-<g class="pl p4"><circle cx="318" cy="142" r="13" fill="none" stroke="#FF8A80" stroke-width="1.2" class="ring"></circle><circle cx="318" cy="142" r="5" fill="#FF8A80"></circle><text x="318" y="122" text-anchor="middle" font-family="JetBrains Mono" font-size="9" font-weight="700" fill="#FF8A80">P4 · 0.93</text></g>
-<path d="M96 58 92 146M300 62 318 142" stroke="rgba(255,255,255,.25)" stroke-width="1" stroke-dasharray="3 4"></path>
-</svg>
-</div>
-</div>
+<div class="bcwrap"><div class="bc" id="bc">
+<video id="bc-video" src="assets/hero/rally-web.mp4" poster="assets/hero/rally-poster.jpg" autoplay muted loop playsinline preload="auto"></video>
+<svg id="bc-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice"><g class="L L4" id="bcL4"></g><g class="L L3" id="bcL3"></g><g class="L L2" id="bcL2"></g><g class="L L1" id="bcL1"></g></svg>
+</div></div>
 <div style="position: absolute; inset: 0; background: linear-gradient(90deg, #07101C 0%, rgba(7,16,28,.92) 30%, rgba(7,16,28,.2) 62%, rgba(7,16,28,0) 100%)"></div>
 <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(7,16,28,.9) 0%, rgba(7,16,28,0) 18%, rgba(7,16,28,0) 55%, #07101C 92%)"></div>
 <div class="hscan"></div>
-<span class="mono deskonly" style="position: absolute; right: 32px; top: 112px; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: rgba(255,255,255,.6)">3D COURT · LIVE RECONSTRUCTION</span>
-<span class="mono deskonly" style="position: absolute; right: 32px; top: 132px; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: #CCF23A">TRACKING 4/4 · BALL LOCKED</span>
+<div class="bc-hud mono"><span class="bc-live"><i></i>BROADCAST</span><span id="bc-hint">HOVER OR SCROLL TO MEASURE</span>
+<ol id="bc-steps"><li>01 TRACKING</li><li>02 DISTANCES</li><li>03 TEAM SHAPE</li><li>04 MOVEMENT</li></ol><div class="bc-card"><b>TEAM SHAPE · LIVE</b>
+<p><i id="bc-c1"></i><span id="bc-t1">Near pair</span><small id="bc-s1">–</small></p>
+<p><i id="bc-c2"></i><span id="bc-t2">Far pair</span><small id="bc-s2">–</small></p></div></div>
 </div>
 
 <div style="position: relative; max-width: 1280px; margin: 0 auto; padding: 170px 32px 0">
@@ -257,6 +292,7 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 <a class="mag" href="#join" data-mag style="text-decoration: none; background: #CCF23A; color: #0E1A2B; padding: 18px 26px; border-radius: 8px; font-weight: 700; font-size: 17px; box-shadow: 0 0 40px -6px rgba(204,242,58,.6)">Get started</a>
 <a class="mono" href="#process" style="text-decoration: none; padding: 18px 10px; font-weight: 600; font-size: 15px; color: #FFFFFF">▶ HOW IT WORKS</a>
 </div>
+<div class="bc-m" aria-hidden="true"><div class="bc-mslot" id="bc-mslot"></div><div class="bc-mchips mono" id="bc-mchips"><span>01 TRACKING</span><span>02 DISTANCES</span><span>03 TEAM SHAPE</span><span>04 MOVEMENT</span></div></div>
 
 <div class="duo2 rise d4" style="margin-top: 64px; padding-bottom: 72px; display: flex; gap: 16px">
 <a class="pan2" href="#app" aria-label="Shot analysis for players: see the Vision app" style="flex: 1 1 0; min-width: 0; display: flex; gap: 18px; padding: 14px; border-radius: 14px; text-decoration: none; color: #FFFFFF">
@@ -629,7 +665,7 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
 <div aria-hidden="true" style="position: absolute; z-index: 2; left: 50%; top: 10px; width: 86px; height: 26px; margin-left: -43px; border-radius: 16px; background: #05090F"></div>
 <div data-if="started" hidden><img class="appin" src="assets/vision-video-review.png" alt="Vision app showing a serve video with tracking and the Ask Vision bar" style="position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top"></div>
 <img class="slide" src="assets/vision-home.png" alt="Vision home: How can I help you analyze your game?" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top"><img class="slide" src="assets/vision-analysis.png" alt="Vision analysis: overall score 7.8 out of 10 with key takeaways" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top"><img class="slide" src="assets/vision-video-review.png" alt="Vision video review of a serve with tracking" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top">
-<video id="logovid" src="assets/padel-labs-logo-animation.mp4" autoplay="" muted="" loop="" playsinline="" aria-label="Padel Labs logo animation" style="display: block; width: 100%; height: 100%; object-fit: cover"></video>
+<video id="logovid" src="assets/padel-labs-logo-animation.mp4" autoplay="" muted="" loop="" playsinline="" aria-label="Padel Labs logo animation" style="display: block; position: absolute; left: 50%; top: 50%; width: 91%; height: auto; transform: translate(-50%, -50%); filter: brightness(1.03); z-index: 0"></video>
 </div>
 </div>
 <div style="display: flex; gap: 2px; align-items: center">
@@ -754,6 +790,133 @@ a{color:#0E1A2B}a:hover{color:#0369A1}
   }));
 })();
 
+</script>
+
+
+
+<script>
+/* Broadcast hero driven by real tracking of the clip (background subtraction + court homography).
+   Level 0 = raw broadcast; hover over the video or scroll to add layers 1..4. Overlays read the video's own clock. */
+(function(){
+  const bc=document.getElementById('bc'), top=document.getElementById('top'), video=document.getElementById('bc-video'); if(!bc||!video) return;
+  const steps=[...document.querySelectorAll('#bc-steps li')], hint=document.getElementById('bc-hint'), hud=document.querySelector('.bc-hud');
+  // ---- reveal state (hover + scroll) ----
+  const wrap=document.querySelector('.bcwrap'), slot=document.getElementById('bc-mslot'), chips=[...document.querySelectorAll('#bc-mchips span')];
+  const mq=matchMedia('(max-width:760px)');
+  let hoverLv=0, scrollLv=0, autoLv=0, autoT=null, timer=null, over=false;
+  const place=()=>{ const t=mq.matches?slot:wrap; if(t&&bc.parentElement!==t) t.appendChild(bc); if(mq.matches){scrollLv=0;} render(); };
+  const render=()=>{const lv=Math.max(hoverLv,scrollLv,autoLv); chips.forEach((c,i)=>c.classList.toggle('on', lv>=i+1));
+    for(let i=1;i<=4;i++) bc.classList.toggle('lv'+i, lv>=i);
+    steps.forEach((li,i)=>li.classList.toggle('on', lv>=i+1)); hud.classList.toggle('lv3', lv>=3); hint.style.opacity=lv?0:1;};
+  const tick=()=>{ clearTimeout(timer);
+    if(over && hoverLv<4){ hoverLv++; render(); timer=setTimeout(tick,750); }
+    else if(!over && hoverLv>0){ hoverLv--; render(); timer=setTimeout(tick,220); } };
+  top.addEventListener('mousemove',e=>{const r=top.getBoundingClientRect(); const now=e.clientX>r.left+r.width*.45;
+    if(now!==over){ over=now; clearTimeout(timer); timer=setTimeout(tick, over?150:900); }});
+  top.addEventListener('mouseleave',()=>{ over=false; clearTimeout(timer); timer=setTimeout(tick,900); });
+  const onScroll=()=>{ if(mq.matches) return; const n=Math.min(4,Math.floor(scrollY/110)); if(n!==scrollLv){scrollLv=n;render();} };
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  // phones: no hover, so the layers step in by themselves while the card is on screen
+  const step=()=>{ clearTimeout(autoT); if(autoLv<4){ autoLv++; render(); autoT=setTimeout(step,1500); } };
+  if('IntersectionObserver' in window) new IntersectionObserver(es=>es.forEach(e=>{
+    if(!mq.matches) return;
+    if(e.isIntersecting){ if(!autoT&&autoLv<4) autoT=setTimeout(step,700); }
+    else { clearTimeout(autoT); autoT=null; autoLv=0; render(); }
+  }),{threshold:.55}).observe(slot);
+  mq.addEventListener('change',place); place();
+
+  // ---- overlay drawing ----
+  const NS='http://www.w3.org/2000/svg';
+  const mk=(parent,tag,attrs)=>{const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); parent.appendChild(e); return e;};
+  const L1=document.getElementById('bcL1'),L2=document.getElementById('bcL2'),L3=document.getElementById('bcL3'),L4=document.getElementById('bcL4');
+  const COL=['#38BDF8','#38BDF8','#CCF23A','#CCF23A'];      // 0,1 far pair (dark kit) · 2,3 near pair
+  const tagEl=(parent,col,dark)=>{const g=mk(parent,'g',{class:'pl'}); const r=mk(g,'rect',{rx:6,fill:dark?col:'rgba(7,16,28,.86)',stroke:col,'stroke-width':1.5}); const t=mk(g,'text',{class:'bct','text-anchor':'middle',fill:dark?'#0E1A2B':col}); return {g,r,t};};
+  let TS=1;
+  const setTag=(T,x,y,text,size)=>{size*=TS; T.t.textContent=text; T.t.setAttribute('font-size',size); const w=text.length*size*.62+18, h=size+12;
+    T.r.setAttribute('x',x-w/2);T.r.setAttribute('y',y);T.r.setAttribute('width',w);T.r.setAttribute('height',h);T.t.setAttribute('x',x);T.t.setAttribute('y',y+h/2+size*.36);};
+  // L4 movement: trails + speed
+  const trails=COL.map(c=>mk(L4,'polyline',{class:'pl',fill:'none',stroke:c,'stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round',opacity:.75}));
+  const spd=COL.map(c=>tagEl(L4,c,true));
+  // L3 team shape polygon
+  const poly=mk(L3,'polygon',{fill:'#4ADE80','fill-opacity':.09,stroke:'#4ADE80','stroke-opacity':.55,'stroke-width':2,'stroke-dasharray':'4 8'});
+  // L2 distances
+  const gap=[mk(L2,'line',{class:'pl',stroke:'#F4FF9A','stroke-width':3,'stroke-dasharray':'8 7'}),mk(L2,'line',{class:'pl',stroke:'#F4FF9A','stroke-width':3,'stroke-dasharray':'8 7'})];
+  const gapT=[tagEl(L2,'#F4FF9A',true),tagEl(L2,'#F4FF9A',true)];
+  const net=[2,3].map(()=>mk(L2,'line',{class:'pl',stroke:'#fff','stroke-width':2,'stroke-dasharray':'5 6',opacity:.85}));
+  const netT=[2,3].map(()=>tagEl(L2,'rgba(255,255,255,.6)',false));
+  // L1 tracking
+  const ring=COL.map(c=>mk(L1,'ellipse',{class:'pl',fill:c,'fill-opacity':.18,stroke:c,'stroke-width':3.5}));
+  const lab=COL.map(c=>tagEl(L1,c,false));
+  spd.forEach(t=>t.g.classList.add('mhide')); netT.forEach(t=>t.g.classList.add('mhide')); lab.forEach(t=>t.g.classList.add('mhide'));
+  // ball (L1) + bounce markers (L2)
+  const bTrail=mk(L1,'polyline',{class:'pl',fill:'none',stroke:'#F4FF9A','stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round',opacity:.8,style:'filter:drop-shadow(0 0 6px rgba(204,242,58,.9))'});
+  const bDot=mk(L1,'circle',{class:'pl',r:9,fill:'#F4FF9A',stroke:'#CCF23A','stroke-width':3,style:'filter:drop-shadow(0 0 8px rgba(204,242,58,.9))'});
+  const bRing=mk(L1,'circle',{class:'pl',r:20,fill:'none',stroke:'#CCF23A','stroke-width':2.5});
+  const bTag=tagEl(L1,'#CCF23A',true);
+  const bnc=mk(L2,'g',{});
+  let B=null;
+  fetch('assets/hero/rally-ball.json').then(r=>r.json()).then(j=>{B=j;
+    B.events.forEach(e=>{ const g=mk(bnc,'g',{class:'pl off'}); e.el=g;
+      const rx=20+Math.max(0,e.p[1]-300)/620*26;
+      e.ping=mk(g,'ellipse',{cx:e.p[0],cy:e.p[1],rx:rx,ry:rx*.34,fill:'none',stroke:'#CCF23A','stroke-width':3});
+      mk(g,'ellipse',{cx:e.p[0],cy:e.p[1],rx:7,ry:3,fill:'#CCF23A'});
+      e.tag=tagEl(g,'#CCF23A',false);
+      setTag(e.tag,e.p[0],e.p[1]+18,'BOUNCE · '+e.m[1].toFixed(1)+' m FROM GLASS',18); });
+  });
+
+  let D=null;
+  fetch('assets/hero/rally-tracks.json').then(r=>r.json()).then(j=>{D=j; loop();});
+  const proj=(x,y)=>{const H=D.H; const w=H[2][0]*x+H[2][1]*y+H[2][2]; return [(H[0][0]*x+H[0][1]*y+H[0][2])/w,(H[1][0]*x+H[1][1]*y+H[1][2])/w];};
+  const card=[[document.getElementById('bc-c1'),document.getElementById('bc-t1'),document.getElementById('bc-s1')],[document.getElementById('bc-c2'),document.getElementById('bc-t2'),document.getElementById('bc-s2')]];
+  const shape=(a,b,name)=>{const sp=Math.hypot(a[0]-b[0],a[1]-b[1]), dp=Math.abs(a[1]-b[1]);
+    const ok=sp>=2.2&&sp<=4.6&&dp<=1.6; const msg=ok?'in shape':(sp>4.6?'gap too wide':(dp>1.6?'staggered':'too close'));
+    return {ok,txt:name+' · '+msg,sub:'spacing '+sp.toFixed(1)+' m · depth '+dp.toFixed(1)+' m'};};
+  let lastCard=0;
+  function draw(){
+    if(!D) return;
+    { const sc=Math.max(bc.clientWidth/1920,bc.clientHeight/1080)||1; TS=Math.max(1,10/(18*sc)); }
+    const N=D.frames.length, i=Math.min(N-1,Math.max(0,Math.round(video.currentTime*D.fps))), F=D.frames[i];
+    const P=F.p, M=F.m, V=F.v;
+    P.forEach((p,k)=>{
+      const rx=16+Math.max(0,(p[1]-300))/620*30, ry=rx*.34;
+      ring[k].setAttribute('cx',p[0]);ring[k].setAttribute('cy',p[1]);ring[k].setAttribute('rx',rx);ring[k].setAttribute('ry',ry);
+      ring[k].classList.toggle('off',!V[k]);
+      setTag(lab[k],p[0],p[1]+ry+6,'P'+(k+1),k<2?18:22); lab[k].g.classList.toggle('off',!V[k]);
+      // trail: last 1.5 s
+      const pts=[]; for(let j=Math.max(0,i-45);j<=i;j+=3){ if(D.frames[j].v[k]) pts.push(D.frames[j].p[k].join(',')); }
+      trails[k].setAttribute('points',pts.join(' ')); trails[k].classList.toggle('off',!V[k]);
+      // speed over 0.5 s, km/h
+      const j0=Math.max(0,i-15), m0=D.frames[j0].m[k], dt=(i-j0)/D.fps||1, v=Math.hypot(M[k][0]-m0[0],M[k][1]-m0[1])/dt*3.6;
+      setTag(spd[k],p[0]+(k%2?70:-70),p[1]-(k<2?150:250),v.toFixed(1)+' km/h',k<2?16:20); spd[k].g.classList.toggle('off',!V[k]||v<1.5);
+    });
+    [[0,1],[2,3]].forEach(([a,b],g)=>{
+      const on=V[a]&&V[b]; gap[g].classList.toggle('off',!on); gapT[g].g.classList.toggle('off',!on);
+      gap[g].setAttribute('x1',P[a][0]);gap[g].setAttribute('y1',P[a][1]);gap[g].setAttribute('x2',P[b][0]);gap[g].setAttribute('y2',P[b][1]);
+      const d=Math.hypot(M[a][0]-M[b][0],M[a][1]-M[b][1]);
+      setTag(gapT[g],(P[a][0]+P[b][0])/2,(P[a][1]+P[b][1])/2-(g?44:30),d.toFixed(1)+' m',g?20:16);
+    });
+    [2,3].forEach((k,n)=>{
+      const q=proj(M[k][0],D.netY); net[n].setAttribute('x1',P[k][0]);net[n].setAttribute('y1',P[k][1]);net[n].setAttribute('x2',q[0]);net[n].setAttribute('y2',q[1]);
+      net[n].classList.toggle('off',!V[k]); netT[n].g.classList.toggle('off',!V[k]);
+      setTag(netT[n],(P[k][0]+q[0])/2+(n?60:-60),(P[k][1]+q[1])/2,'NET '+Math.max(0,D.netY-M[k][1]).toFixed(1)+' m',18);
+    });
+    if(B){
+      const b=B.ball[i]; bDot.classList.toggle('off',!b); bRing.classList.toggle('off',!b); bTag.g.classList.toggle('off',!b);
+      if(b){ bDot.setAttribute('cx',b[0]);bDot.setAttribute('cy',b[1]); bRing.setAttribute('cx',b[0]);bRing.setAttribute('cy',b[1]);
+        bRing.setAttribute('r',14+6*Math.sin(i/4)); setTag(bTag,b[0],b[1]-58,'BALL',16); }
+      const tr=[]; for(let j=Math.max(0,i-12);j<=i;j++){ if(B.ball[j]) tr.push(B.ball[j].join(',')); }
+      bTrail.setAttribute('points',tr.join(' ')); bTrail.classList.toggle('off',tr.length<2);
+      B.events.forEach(e=>{ const age=(i-e.f)/D.fps, on=age>=0&&age<2.6; e.el.classList.toggle('off',!on);
+        if(on){ setTag(e.tag,e.p[0],e.p[1]+18,'BOUNCE · '+e.m[1].toFixed(1)+' m FROM GLASS',18); const k=Math.min(1,age/.6); e.ping.setAttribute('stroke-opacity',1-k*.6); e.ping.setAttribute('transform',`translate(${e.p[0]} ${e.p[1]}) scale(${1+k*1.6}) translate(${-e.p[0]} ${-e.p[1]})`);} });
+    }
+    poly.setAttribute('points',[P[0],P[1],P[3],P[2]].map(p=>p.join(',')).join(' '));
+    if(performance.now()-lastCard>250){ lastCard=performance.now();
+      [[shape(M[2],M[3],'Near pair'),0],[shape(M[0],M[1],'Far pair'),1]].forEach(([r,n])=>{card[n][0].style.background=r.ok?'#4ADE80':'#F59E0B';card[n][1].textContent=r.txt;card[n][2].textContent=r.sub;});
+    }
+  }
+  function loop(){ draw(); if(video.requestVideoFrameCallback) video.requestVideoFrameCallback(loop); else requestAnimationFrame(loop); }
+  video.addEventListener('seeked',draw);
+})();
 </script>
 </body>
 </html>

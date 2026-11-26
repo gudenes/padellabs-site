@@ -3,3 +3,8 @@ node_modules/
 .railway/
 
 .superpowers/
+
+# rendered/raw video artifacts (kept locally, too large for git)
+mockups/coach-story/out/
+mockups/coach-story/out-v1-unblurred/
+mockups/hero-broadcast-assets/rally-raw.mp4
